@@ -20,6 +20,7 @@ private:
 public:
 	HWND hWnd;
 
+	DisplayWin32() {};
 	DisplayWin32(int clientWidthInput, int clientHeightInput, LPCWSTR applicationNameInput, HMODULE hModuleInput = nullptr)
 	{
 		ClientWidth = clientWidthInput;
