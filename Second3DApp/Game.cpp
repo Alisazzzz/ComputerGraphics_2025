@@ -135,6 +135,10 @@ void Game::MessageHandler()
 
 void Game::Run()
 {
+	PrevTime = std::chrono::steady_clock::now();
+	totalTime = 0;
+	frameCount = 0;
+
 	while (!isExitRequested) {
 		MessageHandler();
 		Update();
