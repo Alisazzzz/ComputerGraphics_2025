@@ -8,18 +8,6 @@ void Game::Initialize()
 	window->Display();
 
 
-	std::vector<DirectX::XMFLOAT4> points = { 
-		DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f), DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f),
-		DirectX::XMFLOAT4(-0.5f, -0.5f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f),
-		DirectX::XMFLOAT4(0.5f, -0.5f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f),
-		DirectX::XMFLOAT4(-0.5f, 0.5f, 0.5f, 1.0f), DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),
-	};
-
-	TriangleComponent square = TriangleComponent(this);
-	square.Initialize(L"./Shaders/MyVeryFirstShader.hlsl", &points, points.size());
-	components.push_back(&square);
-
-
 	D3D_FEATURE_LEVEL featureLevel[] = { D3D_FEATURE_LEVEL_11_1 };
 
 	DXGI_SWAP_CHAIN_DESC swapDesc = {};
@@ -61,6 +49,19 @@ void Game::Initialize()
 	CreateBackBuffer();
 	res = device->CreateRenderTargetView(backBuffer, nullptr, &renderView);
 
+
+	std::vector<DirectX::XMFLOAT4> points = {
+	DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f), DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f),
+	DirectX::XMFLOAT4(-0.5f, -0.5f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f),
+	DirectX::XMFLOAT4(0.5f, -0.5f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f),
+	DirectX::XMFLOAT4(-0.5f, 0.5f, 0.5f, 1.0f), DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),
+	};
+	std::vector<UINT> strides = { 32 }; 
+	std::vector<UINT> offsets = { 0 };
+
+	TriangleComponent* square = new TriangleComponent(this);
+	square->Initialize(L"./Shaders/MyVeryFirstShader.hlsl", points, strides, offsets);
+	components.push_back(square);
 }
 
 void Game::CreateBackBuffer()
@@ -76,6 +77,9 @@ void Game::Draw()
 
 	float color[] = { totalTime, 0.1f, 0.1f, 1.0f };
 	context->ClearRenderTargetView(renderView, color);
+	for (GameComponent* component : components) {
+		component->Draw();
+	}
 	context->DrawIndexed(6, 0, 0);
 
 	context->OMSetRenderTargets(0, nullptr, nullptr);
@@ -121,13 +125,14 @@ void Game::Update()
 
 	if (totalTime > 1.0f) {
 		float fps = frameCount / totalTime;
-
+		std::cout << totalTime;
 		totalTime -= 1.0f;
 
 		WCHAR text[256];
 		swprintf_s(text, TEXT("FPS: %f"), fps);
 		SetWindowText(window->hWnd, text);
 
+		std::cout << "time";
 		frameCount = 0;
 	}
 

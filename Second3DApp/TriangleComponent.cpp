@@ -1,7 +1,7 @@
 #include "TriangleComponent.h"
 #include "Game.h"
 
-void TriangleComponent::Initialize(LPCWSTR shaderSource, std::vector<DirectX::XMFLOAT4>* pointsInput, int pointsSize)
+void TriangleComponent::Initialize(LPCWSTR shaderSource, std::vector<DirectX::XMFLOAT4> pointsInput, std::vector<UINT> stridesInput, std::vector<UINT> offsetsInput)
 {
 	points = pointsInput;
 
@@ -71,10 +71,10 @@ void TriangleComponent::Initialize(LPCWSTR shaderSource, std::vector<DirectX::XM
 	vertexBufDesc.CPUAccessFlags = 0;
 	vertexBufDesc.MiscFlags = 0;
 	vertexBufDesc.StructureByteStride = 0;
-	vertexBufDesc.ByteWidth = sizeof(DirectX::XMFLOAT4) * pointsSize;
+	vertexBufDesc.ByteWidth = sizeof(DirectX::XMFLOAT4) * points.size();
 
 	D3D11_SUBRESOURCE_DATA vertexData = {};
-	vertexData.pSysMem = points;
+	vertexData.pSysMem = &points;
 	vertexData.SysMemPitch = 0;
 	vertexData.SysMemSlicePitch = 0;
 
@@ -105,10 +105,12 @@ void TriangleComponent::Initialize(LPCWSTR shaderSource, std::vector<DirectX::XM
 
 void TriangleComponent::Draw()
 {
-	UINT strides[] = { 32 };
+	UINT strides[] = { 32 }; 
 	UINT offsets[] = { 0 };
+	std::cout << "Triangle";
 
 	game->context->RSSetState(rastState);
+
 	game->context->IASetInputLayout(layout);
 	game->context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	game->context->IASetIndexBuffer(ib, DXGI_FORMAT_R32_UINT, 0);

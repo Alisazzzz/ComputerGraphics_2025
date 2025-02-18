@@ -31,10 +31,12 @@ private:
 	ID3D11Buffer* ib;
 	ID3D11RasterizerState* rastState;
 
-	std::vector<DirectX::XMFLOAT4>* points;
+	std::vector<DirectX::XMFLOAT4> points;
+
+	const UINT* strides;
+	std::vector<UINT> offsets;
 
 public:
-
 	TriangleComponent(Game* gameInput) : GameComponent(gameInput) 
 	{
 		layout = nullptr;
@@ -48,11 +50,9 @@ public:
 
 		ib = nullptr;
 		rastState = nullptr;
-
-		points = nullptr;
 	};
 
-	void Initialize(LPCWSTR shaderSource, std::vector<DirectX::XMFLOAT4>* pointsInput, int pointsSize);
+	void Initialize(LPCWSTR shaderSource, std::vector<DirectX::XMFLOAT4> pointsInput, std::vector<UINT> stridesInput, std::vector<UINT> offsetsInput);
 
 	void Draw();
 	void Update();

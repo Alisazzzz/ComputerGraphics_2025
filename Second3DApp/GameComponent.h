@@ -23,12 +23,12 @@ public:
 
 	void Initialize() {};
 
-	void Draw() {};
-	void Update() {};
+	virtual void Draw() {};
+	virtual void Update() {};
 
 	void Reload() {};
 	
-	void DestroyResources() {};
+	virtual void DestroyResources() {};
 
 };
 
