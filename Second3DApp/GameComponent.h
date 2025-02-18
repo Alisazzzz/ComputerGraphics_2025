@@ -12,25 +12,23 @@
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "dxguid.lib")
 
-#include "TriangleComponent.h"
+class Game;
 
 class GameComponent
 {
-private:
-	TriangleComponent triangles;
-
 public:
-	GameComponent() {
-		triangles = TriangleComponent();
-	};
+	Game* game;
 
-	void Initialize(Microsoft::WRL::ComPtr<ID3D11Device> device);
+	GameComponent(Game* gameInput) : game(gameInput) {}
 
-	void Draw(ID3D11DeviceContext* context);
+	void Initialize() {};
 
-	void DestroyResources();
-	void Reload();
-	void Update();
+	void Draw() {};
+	void Update() {};
+
+	void Reload() {};
+	
+	void DestroyResources() {};
 
 };
 

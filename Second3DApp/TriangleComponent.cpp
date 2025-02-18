@@ -1,9 +1,12 @@
 #include "TriangleComponent.h"
+#include "Game.h"
 
-void TriangleComponent::Initialize(Microsoft::WRL::ComPtr<ID3D11Device> device)
+void TriangleComponent::Initialize(LPCWSTR shaderSource, std::vector<DirectX::XMFLOAT4>* pointsInput, int pointsSize)
 {
+	points = pointsInput;
+
 	ID3DBlob* errorVertexCode = nullptr;
-	HRESULT res = D3DCompileFromFile(L"./Shaders/MyVeryFirstShader.hlsl",
+	HRESULT res = D3DCompileFromFile(shaderSource,
 		nullptr /*macros*/,
 		nullptr /*include*/,
 		"VSMain",
@@ -16,7 +19,7 @@ void TriangleComponent::Initialize(Microsoft::WRL::ComPtr<ID3D11Device> device)
 	D3D_SHADER_MACRO Shader_Macros[] = { "TEST", "1", "TCOLOR", "float4(0.0f, 1.0f, 0.0f, 1.0f)", nullptr, nullptr };
 	ID3DBlob* errorPixelCode = nullptr;
 
-	res = D3DCompileFromFile(L"./Shaders/MyVeryFirstShader.hlsl",
+	res = D3DCompileFromFile(shaderSource,
 		Shader_Macros /*macros*/,
 		nullptr /*include*/,
 		"PSMain",
@@ -26,12 +29,12 @@ void TriangleComponent::Initialize(Microsoft::WRL::ComPtr<ID3D11Device> device)
 		&pixelByteCode,
 		&errorPixelCode);
 
-	device->CreateVertexShader(
+	game->device->CreateVertexShader(
 		vertexByteCode->GetBufferPointer(),
 		vertexByteCode->GetBufferSize(),
 		nullptr, &vertexShader);
 
-	device->CreatePixelShader(
+	game->device->CreatePixelShader(
 		pixelByteCode->GetBufferPointer(),
 		pixelByteCode->GetBufferSize(),
 		nullptr, &pixelShader);
@@ -55,19 +58,12 @@ void TriangleComponent::Initialize(Microsoft::WRL::ComPtr<ID3D11Device> device)
 		0}
 	};
 
-	device->CreateInputLayout(
+	game->device->CreateInputLayout(
 		inputElements,
 		2,
 		vertexByteCode->GetBufferPointer(),
 		vertexByteCode->GetBufferSize(),
 		&layout);
-
-	DirectX::XMFLOAT4 points[8] = {
-		DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f), DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f),
-		DirectX::XMFLOAT4(-0.5f, -0.5f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f),
-		DirectX::XMFLOAT4(0.5f, -0.5f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f),
-		DirectX::XMFLOAT4(-0.5f, 0.5f, 0.5f, 1.0f), DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),
-	};
 
 	D3D11_BUFFER_DESC vertexBufDesc = {};
 	vertexBufDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -75,14 +71,14 @@ void TriangleComponent::Initialize(Microsoft::WRL::ComPtr<ID3D11Device> device)
 	vertexBufDesc.CPUAccessFlags = 0;
 	vertexBufDesc.MiscFlags = 0;
 	vertexBufDesc.StructureByteStride = 0;
-	vertexBufDesc.ByteWidth = sizeof(DirectX::XMFLOAT4) * std::size(points);
+	vertexBufDesc.ByteWidth = sizeof(DirectX::XMFLOAT4) * pointsSize;
 
 	D3D11_SUBRESOURCE_DATA vertexData = {};
 	vertexData.pSysMem = points;
 	vertexData.SysMemPitch = 0;
 	vertexData.SysMemSlicePitch = 0;
 
-	device->CreateBuffer(&vertexBufDesc, &vertexData, &vb);
+	game->device->CreateBuffer(&vertexBufDesc, &vertexData, &vb);
 
 	int indeces[] = { 0,1,2, 1,0,3 };
 	D3D11_BUFFER_DESC indexBufDesc = {};
@@ -98,25 +94,33 @@ void TriangleComponent::Initialize(Microsoft::WRL::ComPtr<ID3D11Device> device)
 	indexData.SysMemPitch = 0;
 	indexData.SysMemSlicePitch = 0;
 
-	device->CreateBuffer(&indexBufDesc, &indexData, &ib);
+	game->device->CreateBuffer(&indexBufDesc, &indexData, &ib);
 
 	CD3D11_RASTERIZER_DESC rastDesc = {};
 	rastDesc.CullMode = D3D11_CULL_NONE;
 	rastDesc.FillMode = D3D11_FILL_SOLID;
 
-	res = device->CreateRasterizerState(&rastDesc, &rastState);
+	res = game->device->CreateRasterizerState(&rastDesc, &rastState);
 }
 
-void TriangleComponent::Draw(ID3D11DeviceContext* context)
+void TriangleComponent::Draw()
 {
 	UINT strides[] = { 32 };
 	UINT offsets[] = { 0 };
 
-	context->RSSetState(rastState);
-	context->IASetInputLayout(layout);
-	context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	context->IASetIndexBuffer(ib, DXGI_FORMAT_R32_UINT, 0);
-	context->IASetVertexBuffers(0, 1, &vb, strides, offsets);
-	context->VSSetShader(vertexShader, nullptr, 0);
-	context->PSSetShader(pixelShader, nullptr, 0);
+	game->context->RSSetState(rastState);
+	game->context->IASetInputLayout(layout);
+	game->context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	game->context->IASetIndexBuffer(ib, DXGI_FORMAT_R32_UINT, 0);
+	game->context->IASetVertexBuffers(0, 1, &vb, strides, offsets);
+	game->context->VSSetShader(vertexShader, nullptr, 0);
+	game->context->PSSetShader(pixelShader, nullptr, 0);
+}
+
+void TriangleComponent::Update()
+{
+}
+
+void TriangleComponent::DestroyResources()
+{
 }

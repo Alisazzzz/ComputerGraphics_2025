@@ -7,6 +7,7 @@
 #include <d3dcompiler.h>
 #include <directxmath.h>
 #include <chrono>
+#include <vector>
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")
@@ -16,11 +17,14 @@
 #include "GameComponent.h"
 #include "DisplayWin32.h"
 
+class TriangleComponent;
+
 class Game
 {
-private:
-	GameComponent gameComp;
-	DisplayWin32 window;
+public:
+
+	DisplayWin32* window;
+	std::vector<GameComponent*> components;
 
 	MSG msg = {};
 	bool isExitRequested = false;
@@ -40,7 +44,6 @@ private:
 	unsigned int frameCount = 0;
 	std::chrono::time_point<std::chrono::steady_clock> PrevTime;
 
-public:
 	Game(int screenWidthInput, int screenHeightInput) 
 	{
 		screenWidth = screenWidthInput;
@@ -60,4 +63,3 @@ public:
 	void MessageHandler();
 	void Run();
 };
-

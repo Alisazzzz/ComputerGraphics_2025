@@ -7,14 +7,16 @@
 #include <d3d11.h>
 #include <d3dcompiler.h>
 #include <directxmath.h>
-#include <chrono>
+#include <vector>
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "dxguid.lib")
 
-class TriangleComponent
+#include "GameComponent.h"
+
+class TriangleComponent : public GameComponent
 {
 private:
 	ID3D11InputLayout* layout;
@@ -29,9 +31,12 @@ private:
 	ID3D11Buffer* ib;
 	ID3D11RasterizerState* rastState;
 
+	std::vector<DirectX::XMFLOAT4>* points;
+
 public:
 
-	TriangleComponent() {
+	TriangleComponent(Game* gameInput) : GameComponent(gameInput) 
+	{
 		layout = nullptr;
 
 		vertexShader = nullptr;
@@ -43,10 +48,15 @@ public:
 
 		ib = nullptr;
 		rastState = nullptr;
+
+		points = nullptr;
 	};
 
-	void Initialize(Microsoft::WRL::ComPtr<ID3D11Device> device);
+	void Initialize(LPCWSTR shaderSource, std::vector<DirectX::XMFLOAT4>* pointsInput, int pointsSize);
 
-	void Draw(ID3D11DeviceContext* context);
+	void Draw();
+	void Update();
+
+	void DestroyResources();
 };
 

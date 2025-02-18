@@ -1,10 +1,24 @@
 #include "Game.h"
+#include "TriangleComponent.h"
 
 void Game::Initialize()
 {
-	gameComp = GameComponent();
-	window = DisplayWin32(screenHeight, screenWidth, applicationName);
-	window.Display();
+	DisplayWin32 wnd = DisplayWin32(screenHeight, screenWidth, applicationName);
+	window = &wnd;
+	window->Display();
+
+
+	std::vector<DirectX::XMFLOAT4> points = { 
+		DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f), DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f),
+		DirectX::XMFLOAT4(-0.5f, -0.5f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f),
+		DirectX::XMFLOAT4(0.5f, -0.5f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f),
+		DirectX::XMFLOAT4(-0.5f, 0.5f, 0.5f, 1.0f), DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),
+	};
+
+	TriangleComponent square = TriangleComponent(this);
+	square.Initialize(L"./Shaders/MyVeryFirstShader.hlsl", &points, points.size());
+	components.push_back(&square);
+
 
 	D3D_FEATURE_LEVEL featureLevel[] = { D3D_FEATURE_LEVEL_11_1 };
 
@@ -18,7 +32,7 @@ void Game::Initialize()
 	swapDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 	swapDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 	swapDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	swapDesc.OutputWindow = window.hWnd;
+	swapDesc.OutputWindow = window->hWnd;
 	swapDesc.Windowed = true;
 	swapDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	swapDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
@@ -47,16 +61,19 @@ void Game::Initialize()
 	CreateBackBuffer();
 	res = device->CreateRenderTargetView(backBuffer, nullptr, &renderView);
 
-	gameComp.Initialize(device);
 }
 
 void Game::CreateBackBuffer()
 {
-	auto res = swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer);	// __uuidof(ID3D11Texture2D)
+	auto res = swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer);
 }
 
 void Game::Draw()
 {
+	for (GameComponent* component : components) {
+		component->Draw();
+	}
+
 	float color[] = { totalTime, 0.1f, 0.1f, 1.0f };
 	context->ClearRenderTargetView(renderView, color);
 	context->DrawIndexed(6, 0, 0);
@@ -78,8 +95,6 @@ int Game::Exit()
 void Game::PrepareFrame()
 {
 	context->ClearState();
-
-	gameComp.Draw(context);
 
 	D3D11_VIEWPORT viewport = {};
 	viewport.Width = static_cast<float>(screenWidth);
@@ -111,7 +126,7 @@ void Game::Update()
 
 		WCHAR text[256];
 		swprintf_s(text, TEXT("FPS: %f"), fps);
-		SetWindowText(window.hWnd, text);
+		SetWindowText(window->hWnd, text);
 
 		frameCount = 0;
 	}
