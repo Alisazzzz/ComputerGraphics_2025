@@ -3,7 +3,7 @@
 
 LRESULT DisplayWin32::WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 {
-	Game game = Game::getInstance();
+	Game* game = Game::getInstance();
 
 	switch (umessage)
 	{
@@ -43,7 +43,7 @@ LRESULT DisplayWin32::WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lp
 				//	raw->data.keyboard.Message,
 				//	raw->data.keyboard.VKey);
 
-				game.inputDevice->OnKeyDown({
+				game->inputDevice->OnKeyDown({
 					raw->data.keyboard.MakeCode,
 					raw->data.keyboard.Flags,
 					raw->data.keyboard.VKey,
@@ -53,7 +53,7 @@ LRESULT DisplayWin32::WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lp
 			else if (raw->header.dwType == RIM_TYPEMOUSE)
 			{
 				//printf(" Mouse: X=%04d Y:%04d \n", raw->data.mouse.lLastX, raw->data.mouse.lLastY);
-				game.inputDevice->OnMouseMove({
+				game->inputDevice->OnMouseMove({
 					raw->data.mouse.usFlags,
 					raw->data.mouse.usButtonFlags,
 					static_cast<int>(raw->data.mouse.ulExtraInformation),

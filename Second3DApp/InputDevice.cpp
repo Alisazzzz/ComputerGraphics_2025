@@ -3,6 +3,7 @@
 #include <iostream>
 #include <SimpleMath.h>
 
+#include "DisplayWin32.h"
 #include "Game.h"
 
 InputDevice::InputDevice(Game* inGame) : game(inGame)

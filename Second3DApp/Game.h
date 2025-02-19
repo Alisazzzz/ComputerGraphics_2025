@@ -8,6 +8,7 @@
 #include <directxmath.h>
 #include <chrono>
 #include <vector>
+#include <mutex>
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")
@@ -21,6 +22,10 @@ class DisplayWin32;
 
 class Game
 {
+private:
+	static Game* gameInstance;
+	Game() {};
+
 public:
 
 	DisplayWin32* window;
@@ -45,18 +50,18 @@ public:
 	unsigned int frameCount = 0;
 	std::chrono::time_point<std::chrono::steady_clock> PrevTime;
 
-	Game(int screenWidthInput, int screenHeightInput) 
-	{
-		screenWidth = screenWidthInput;
-		screenHeight = screenHeightInput;
-	};
+	Game(const Game& gameObject) = delete;
 
-	static Game& getInstance() {
-		static Game game(800, 800);
-		return game;
+	static Game* getInstance() {
+		if (gameInstance == nullptr) {
+			if (gameInstance == nullptr) {
+				gameInstance = new Game();
+			}
+		}
+		return gameInstance;
 	}
 
-	void Initialize();
+	void Initialize(int screenWidthInput, int screenHeightInput);
 	void CreateBackBuffer();
 
 	void Draw();

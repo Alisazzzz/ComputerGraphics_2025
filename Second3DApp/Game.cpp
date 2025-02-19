@@ -3,14 +3,17 @@
 #include "DisplayWin32.h"
 #include "TriangleComponent.h"
 
-void Game::Initialize()
+Game* Game::gameInstance = nullptr;
+
+void Game::Initialize(int screenWidthInput, int screenHeightInput)
 {
+	screenWidth = screenWidthInput;
+	screenHeight = screenHeightInput;
 
 	window = new DisplayWin32(screenHeight, screenWidth, applicationName);
 	window->Display();
 
-	inputDevice = new InputDevice(this);
-
+	inputDevice = new InputDevice(getInstance());
 
 	D3D_FEATURE_LEVEL featureLevel[] = { D3D_FEATURE_LEVEL_11_1 };
 
@@ -66,7 +69,7 @@ void Game::Initialize()
 	std::vector<UINT> strides = { 32 }; 
 	std::vector<UINT> offsets = { 0 };
 
-	TriangleComponent* square = new TriangleComponent(this);
+	TriangleComponent* square = new TriangleComponent(getInstance());
 	square->Initialize(L"./Shaders/MyVeryFirstShader.hlsl", points, indeces, strides, offsets);
 	components.push_back(square);
 }

@@ -22,9 +22,9 @@ int main()
 {
 	int screenWidth = 800;
 	int screenHeight = 800;
-	Game app = Game(screenWidth, screenHeight);
-	app.Initialize();
-	app.Run();
+	Game* app = Game::getInstance();
+	app->Initialize(screenWidth, screenHeight);
+	app->Run();
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
