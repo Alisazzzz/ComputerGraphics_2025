@@ -20,6 +20,7 @@ public:
 	Game* game;
 
 	GameComponent(Game* gameInput) : game(gameInput) {}
+	~GameComponent() {};
 
 	void Initialize() {};
 

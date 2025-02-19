@@ -5,9 +5,11 @@
 #include <WinUser.h>
 #include <wrl.h>
 
+#include "InputDevice.h"
+
 class DisplayWin32
 {
-private:
+public:
 	int ClientWidth;
 	int ClientHeight;
 	LPCWSTR applicationName;
@@ -15,17 +17,21 @@ private:
 	HMODULE hModule;
 	WNDCLASSEX wc;
 
-	static LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam);
-
-public:
 	HWND hWnd;
 
-	DisplayWin32(int clientWidthInput, int clientHeightInput, LPCWSTR applicationNameInput, HMODULE hModuleInput = nullptr)
+	static InputDevice* inputDevice;
+
+	static LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam);
+
+	DisplayWin32(int clientWidthInput, int clientHeightInput, LPCWSTR applicationNameInput, 
+		InputDevice* inputDeviceInput, HMODULE hModuleInput = nullptr)
 	{
 		ClientWidth = clientWidthInput;
 		ClientHeight = clientHeightInput;
 		applicationName = applicationNameInput;
 		hModule = hModuleInput;
+
+		inputDevice = inputDeviceInput;
 
 		hInstance = GetModuleHandle(nullptr);
 
@@ -59,6 +65,20 @@ public:
 			windowRect.right - windowRect.left,
 			windowRect.bottom - windowRect.top,
 			nullptr, nullptr, hInstance, nullptr);
+	}
+
+	~DisplayWin32()
+	{
+		if (hWnd)
+		{
+			DestroyWindow(hWnd);
+			hWnd = nullptr;
+		}
+
+		if (wc.lpszClassName)
+		{
+			UnregisterClass(wc.lpszClassName, hInstance);
+		}
 	}
 
 	void Display();

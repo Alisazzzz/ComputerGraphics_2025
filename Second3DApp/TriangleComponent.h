@@ -32,8 +32,9 @@ private:
 	ID3D11RasterizerState* rastState;
 
 	std::vector<DirectX::XMFLOAT4> points;
+	std::vector<int> indeces;
 
-	const UINT* strides;
+	std::vector<UINT> strides;
 	std::vector<UINT> offsets;
 
 public:
@@ -52,7 +53,9 @@ public:
 		rastState = nullptr;
 	};
 
-	void Initialize(LPCWSTR shaderSource, std::vector<DirectX::XMFLOAT4> pointsInput, std::vector<UINT> stridesInput, std::vector<UINT> offsetsInput);
+	void Initialize(LPCWSTR shaderSource, 
+		std::vector<DirectX::XMFLOAT4> pointsInput, std::vector<int> indecesInput,
+		std::vector<UINT> stridesInput, std::vector<UINT> offsetsInput);
 
 	void Draw();
 	void Update();

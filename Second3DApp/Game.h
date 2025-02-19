@@ -15,9 +15,9 @@
 #pragma comment(lib, "dxguid.lib")
 
 #include "GameComponent.h"
-#include "DisplayWin32.h"
+#include "InputDevice.h"
 
-class TriangleComponent;
+class DisplayWin32;
 
 class Game
 {
@@ -25,6 +25,7 @@ public:
 
 	DisplayWin32* window;
 	std::vector<GameComponent*> components;
+	InputDevice* inputDevice;
 
 	MSG msg = {};
 	bool isExitRequested = false;

@@ -1,14 +1,15 @@
 #pragma once
 
-/*
 #include <unordered_set>
 #include "Keys.h"
-#include "Exports.h"
+//#include "Exports.h"
+#include "Delegates.h"
 
+#include <SimpleMath.h>
 
 class Game;
 
-class GAMEFRAMEWORK_API InputDevice
+class /* GAMEFRAMEWORK_API */ InputDevice
 {
 	friend class Game;
 
@@ -31,27 +32,17 @@ public:
 
 	MulticastDelegate<const MouseMoveEventArgs&> MouseMove;
 
-public:
-
-	InputDevice(Game* inGame);
-	~InputDevice();
-
-
-	void AddPressedKey(Keys key);
-	void RemovePressedKey(Keys key);
-	bool IsKeyDown(Keys key);
-
 protected:
 	struct KeyboardInputEventArgs {
-		
-		The "make" scan code (key depression).
-		 
+		/*
+		 * The "make" scan code (key depression).
+		 */
 		USHORT MakeCode;
 
-		
-		  The flags field indicates a "break" (key release) and other
-		  miscellaneous scan code information defined in ntddkbd.h.
-		 
+		/*
+		 * The flags field indicates a "break" (key release) and other
+		 * miscellaneous scan code information defined in ntddkbd.h.
+		 */
 		USHORT Flags;
 
 		USHORT VKey;
@@ -101,7 +92,7 @@ protected:
 	};
 	struct RawMouseEventArgs
 	{
-		//MOUSE_MOVE_RELATIVE
+		/*MOUSE_MOVE_RELATIVE*/
 		int Mode;
 		int ButtonFlags;
 		int ExtraInformation;
@@ -111,13 +102,19 @@ protected:
 		int Y;
 	};
 
-	void OnKeyDown(KeyboardInputEventArgs args);
-	void OnMouseMove(RawMouseEventArgs args);
 public:
 
-	InputDevice() = default;
+	InputDevice(Game* inGame);
+	~InputDevice();
+
+	void AddPressedKey(Keys key);
+	void RemovePressedKey(Keys key);
+	bool IsKeyDown(Keys key);
+
+	void OnKeyDown(KeyboardInputEventArgs args);
+	void OnMouseMove(RawMouseEventArgs args);
+
 };
-*/
 
 /*
 		case WM_INPUT:
@@ -169,6 +166,4 @@ public:
 			return DefWindowProc(hwnd, umessage, wparam, lparam);
 		}
  */
-
-
 

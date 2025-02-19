@@ -1,11 +1,14 @@
 #include "Game.h"
+
+#include "DisplayWin32.h"
 #include "TriangleComponent.h"
 
 void Game::Initialize()
 {
-	DisplayWin32 wnd = DisplayWin32(screenHeight, screenWidth, applicationName);
-	window = &wnd;
+	window = new DisplayWin32(screenHeight, screenWidth, applicationName, inputDevice);
 	window->Display();
+
+	inputDevice = new InputDevice(this);
 
 
 	D3D_FEATURE_LEVEL featureLevel[] = { D3D_FEATURE_LEVEL_11_1 };
@@ -54,13 +57,16 @@ void Game::Initialize()
 	DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f), DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f),
 	DirectX::XMFLOAT4(-0.5f, -0.5f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f),
 	DirectX::XMFLOAT4(0.5f, -0.5f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f),
-	DirectX::XMFLOAT4(-0.5f, 0.5f, 0.5f, 1.0f), DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f),
+	DirectX::XMFLOAT4(-0.5f, 0.5f, 0.5f, 1.0f), DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 
 	};
+
+	std::vector<int> indeces = { 0,1,2, 1,0,3 };
+
 	std::vector<UINT> strides = { 32 }; 
 	std::vector<UINT> offsets = { 0 };
 
 	TriangleComponent* square = new TriangleComponent(this);
-	square->Initialize(L"./Shaders/MyVeryFirstShader.hlsl", points, strides, offsets);
+	square->Initialize(L"./Shaders/MyVeryFirstShader.hlsl", points, indeces, strides, offsets);
 	components.push_back(square);
 }
 
@@ -92,6 +98,23 @@ void Game::EndFrame()
 
 int Game::Exit()
 {
+	window->~DisplayWin32();
+	delete(window);
+
+	for (GameComponent* component : components) {
+		component->DestroyResources();
+		component->~GameComponent();
+		delete(component);
+	}
+
+	context->Release();
+	device->Release();
+
+	swapChain->Release();
+
+	backBuffer->Release();
+	renderView->Release();
+
 	std::cout << "Hello World!\n";
 	return 0;
 }
@@ -125,14 +148,12 @@ void Game::Update()
 
 	if (totalTime > 1.0f) {
 		float fps = frameCount / totalTime;
-		std::cout << totalTime;
 		totalTime -= 1.0f;
 
 		WCHAR text[256];
 		swprintf_s(text, TEXT("FPS: %f"), fps);
 		SetWindowText(window->hWnd, text);
 
-		std::cout << "time";
 		frameCount = 0;
 	}
 

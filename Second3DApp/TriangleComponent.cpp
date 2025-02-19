@@ -1,9 +1,15 @@
 #include "TriangleComponent.h"
 #include "Game.h"
 
-void TriangleComponent::Initialize(LPCWSTR shaderSource, std::vector<DirectX::XMFLOAT4> pointsInput, std::vector<UINT> stridesInput, std::vector<UINT> offsetsInput)
+void TriangleComponent::Initialize(LPCWSTR shaderSource, 
+	std::vector<DirectX::XMFLOAT4> pointsInput, std::vector<int> indecesInput,
+	std::vector<UINT> stridesInput, std::vector<UINT> offsetsInput)
 {
 	points = pointsInput;
+	indeces = indecesInput;
+
+	strides = stridesInput;
+	offsets = offsetsInput;
 
 	ID3DBlob* errorVertexCode = nullptr;
 	HRESULT res = D3DCompileFromFile(shaderSource,
@@ -74,13 +80,12 @@ void TriangleComponent::Initialize(LPCWSTR shaderSource, std::vector<DirectX::XM
 	vertexBufDesc.ByteWidth = sizeof(DirectX::XMFLOAT4) * points.size();
 
 	D3D11_SUBRESOURCE_DATA vertexData = {};
-	vertexData.pSysMem = &points;
+	vertexData.pSysMem = points.data();
 	vertexData.SysMemPitch = 0;
 	vertexData.SysMemSlicePitch = 0;
 
 	game->device->CreateBuffer(&vertexBufDesc, &vertexData, &vb);
 
-	int indeces[] = { 0,1,2, 1,0,3 };
 	D3D11_BUFFER_DESC indexBufDesc = {};
 	indexBufDesc.Usage = D3D11_USAGE_DEFAULT;
 	indexBufDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
@@ -90,7 +95,7 @@ void TriangleComponent::Initialize(LPCWSTR shaderSource, std::vector<DirectX::XM
 	indexBufDesc.ByteWidth = sizeof(int) * std::size(indeces);
 
 	D3D11_SUBRESOURCE_DATA indexData = {};
-	indexData.pSysMem = indeces;
+	indexData.pSysMem = indeces.data();
 	indexData.SysMemPitch = 0;
 	indexData.SysMemSlicePitch = 0;
 
@@ -105,16 +110,12 @@ void TriangleComponent::Initialize(LPCWSTR shaderSource, std::vector<DirectX::XM
 
 void TriangleComponent::Draw()
 {
-	UINT strides[] = { 32 }; 
-	UINT offsets[] = { 0 };
-	std::cout << "Triangle";
-
 	game->context->RSSetState(rastState);
 
 	game->context->IASetInputLayout(layout);
 	game->context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	game->context->IASetIndexBuffer(ib, DXGI_FORMAT_R32_UINT, 0);
-	game->context->IASetVertexBuffers(0, 1, &vb, strides, offsets);
+	game->context->IASetVertexBuffers(0, 1, &vb, strides.data(), offsets.data());
 	game->context->VSSetShader(vertexShader, nullptr, 0);
 	game->context->PSSetShader(pixelShader, nullptr, 0);
 }
@@ -125,4 +126,16 @@ void TriangleComponent::Update()
 
 void TriangleComponent::DestroyResources()
 {
+	layout->Release();
+
+	vertexShader->Release();
+	vertexByteCode->Release();
+	vb->Release();
+
+	pixelShader->Release();
+	pixelByteCode->Release();
+
+	ib->Release();
+
+	rastState->Release();
 }

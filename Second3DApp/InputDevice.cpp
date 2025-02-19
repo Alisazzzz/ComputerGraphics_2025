@@ -1,10 +1,11 @@
-
 #include "InputDevice.h"
+
 #include <iostream>
+#include <SimpleMath.h>
+
 #include "Game.h"
 
-/*
-using namespace DirectX::SimpleMath;
+//using namespace DirectX::SimpleMath;
 
 
 InputDevice::InputDevice(Game* inGame) : game(inGame)
@@ -69,10 +70,10 @@ void InputDevice::OnMouseMove(RawMouseEventArgs args)
 
 	POINT p;
 	GetCursorPos(&p);
-	ScreenToClient(game->Display->hWnd, &p);
+	ScreenToClient(game->window->hWnd, &p);
 
-	MousePosition = Vector2(p.x, p.y);
-	MouseOffset = Vector2(args.X, args.Y);
+	MousePosition = DirectX::SimpleMath::Vector2::Vector2(p.x, p.y);
+	MouseOffset = DirectX::SimpleMath::Vector2::Vector2(args.X, args.Y);
 	MouseWheelDelta = args.WheelDelta;
 
 	const MouseMoveEventArgs moveArgs = { MousePosition, MouseOffset, MouseWheelDelta };
@@ -104,4 +105,3 @@ bool InputDevice::IsKeyDown(Keys key)
 {
 	return keys->count(key);
 }
-*/
