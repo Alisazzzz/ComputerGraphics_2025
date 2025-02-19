@@ -5,7 +5,8 @@
 
 void Game::Initialize()
 {
-	window = new DisplayWin32(screenHeight, screenWidth, applicationName, inputDevice);
+
+	window = new DisplayWin32(screenHeight, screenWidth, applicationName);
 	window->Display();
 
 	inputDevice = new InputDevice(this);
@@ -77,16 +78,16 @@ void Game::CreateBackBuffer()
 
 void Game::Draw()
 {
-	for (GameComponent* component : components) {
-		component->Draw();
-	}
-
 	float color[] = { totalTime, 0.1f, 0.1f, 1.0f };
 	context->ClearRenderTargetView(renderView, color);
 	for (GameComponent* component : components) {
 		component->Draw();
 	}
-	context->DrawIndexed(6, 0, 0);
+	context->OMSetRenderTargets(1, &renderView, nullptr);
+
+	for (GameComponent* component : components) {
+		component->Draw();
+	}
 
 	context->OMSetRenderTargets(0, nullptr, nullptr);
 	swapChain->Present(1, /*DXGI_PRESENT_DO_NOT_WAIT*/ 0);
@@ -132,13 +133,10 @@ void Game::PrepareFrame()
 	viewport.MaxDepth = 1.0f;
 
 	context->RSSetViewports(1, &viewport);
-	context->OMSetRenderTargets(1, &renderView, nullptr);
 }
 
 void Game::Update()
 {
-	PrepareFrame();
-
 	auto curTime = std::chrono::steady_clock::now();
 	float deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(curTime - PrevTime).count() / 1000000.0f;
 	PrevTime = curTime;
@@ -157,6 +155,7 @@ void Game::Update()
 		frameCount = 0;
 	}
 
+	PrepareFrame();
 	Draw();
 	EndFrame();
 }

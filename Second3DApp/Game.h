@@ -51,6 +51,11 @@ public:
 		screenHeight = screenHeightInput;
 	};
 
+	static Game& getInstance() {
+		static Game game(800, 800);
+		return game;
+	}
+
 	void Initialize();
 	void CreateBackBuffer();
 

@@ -118,6 +118,7 @@ void TriangleComponent::Draw()
 	game->context->IASetVertexBuffers(0, 1, &vb, strides.data(), offsets.data());
 	game->context->VSSetShader(vertexShader, nullptr, 0);
 	game->context->PSSetShader(pixelShader, nullptr, 0);
+	game->context->DrawIndexed(indeces.size(), 0, 0);
 }
 
 void TriangleComponent::Update()

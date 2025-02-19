@@ -5,8 +5,6 @@
 #include <WinUser.h>
 #include <wrl.h>
 
-#include "InputDevice.h"
-
 class DisplayWin32
 {
 public:
@@ -19,19 +17,14 @@ public:
 
 	HWND hWnd;
 
-	static InputDevice* inputDevice;
-
 	static LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam);
 
-	DisplayWin32(int clientWidthInput, int clientHeightInput, LPCWSTR applicationNameInput, 
-		InputDevice* inputDeviceInput, HMODULE hModuleInput = nullptr)
+	DisplayWin32(int clientWidthInput, int clientHeightInput, LPCWSTR applicationNameInput, HMODULE hModuleInput = nullptr)
 	{
 		ClientWidth = clientWidthInput;
 		ClientHeight = clientHeightInput;
 		applicationName = applicationNameInput;
 		hModule = hModuleInput;
-
-		inputDevice = inputDeviceInput;
 
 		hInstance = GetModuleHandle(nullptr);
 

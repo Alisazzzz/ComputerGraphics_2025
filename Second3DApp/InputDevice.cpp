@@ -5,9 +5,6 @@
 
 #include "Game.h"
 
-//using namespace DirectX::SimpleMath;
-
-
 InputDevice::InputDevice(Game* inGame) : game(inGame)
 {
 	keys = new std::unordered_set<Keys>();
