@@ -102,13 +102,14 @@ void Game::EndFrame()
 
 int Game::Exit()
 {
-	window->~DisplayWin32();
-	delete(window);
+	std::cout << "exit";
+
+	delete window;
+	delete inputDevice;
 
 	for (GameComponent* component : components) {
 		component->DestroyResources();
-		component->~GameComponent();
-		delete(component);
+		delete component;
 	}
 
 	context->Release();
