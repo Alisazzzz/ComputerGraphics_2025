@@ -96,7 +96,7 @@ int Game::Exit()
 	return 0;
 }
 
-void Game::PrepareFrame()
+void Game::PrepareFrame() 
 {
 	context->ClearState();
 
