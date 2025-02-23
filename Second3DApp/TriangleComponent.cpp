@@ -103,7 +103,7 @@ void TriangleComponent::Initialize(LPCWSTR shaderSource,
 
 	CD3D11_RASTERIZER_DESC rastDesc = {};
 	rastDesc.CullMode = D3D11_CULL_NONE;
-	rastDesc.FillMode = D3D11_FILL_SOLID;
+	rastDesc.FillMode =  D3D11_FILL_SOLID  /* D3D11_FILL_WIREFRAME*/;
 
 	res = game->device->CreateRasterizerState(&rastDesc, &rastState);
 }
@@ -118,6 +118,7 @@ void TriangleComponent::Draw()
 	game->context->IASetVertexBuffers(0, 1, &vb, strides.data(), offsets.data());
 	game->context->VSSetShader(vertexShader, nullptr, 0);
 	game->context->PSSetShader(pixelShader, nullptr, 0);
+
 	game->context->DrawIndexed(indeces.size(), 0, 0);
 }
 

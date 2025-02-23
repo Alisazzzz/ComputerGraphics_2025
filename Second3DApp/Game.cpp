@@ -2,6 +2,7 @@
 
 #include "DisplayWin32.h"
 #include "TriangleComponent.h"
+#include "MeshGenerator.h"
 
 Game* Game::gameInstance = nullptr;
 
@@ -10,7 +11,7 @@ void Game::Initialize(int screenWidthInput, int screenHeightInput)
 	screenWidth = screenWidthInput;
 	screenHeight = screenHeightInput;
 
-	window = new DisplayWin32(screenHeight, screenWidth, applicationName);
+	window = new DisplayWin32(screenWidth, screenHeight, applicationName);
 	window->Display();
 
 	inputDevice = new InputDevice(getInstance());
@@ -56,22 +57,18 @@ void Game::Initialize(int screenWidthInput, int screenHeightInput)
 	CreateBackBuffer();
 	res = device->CreateRenderTargetView(backBuffer, nullptr, &renderView);
 
-
-	std::vector<DirectX::XMFLOAT4> points = {
-	DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f), DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f),
-	DirectX::XMFLOAT4(-0.5f, -0.5f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f),
-	DirectX::XMFLOAT4(0.5f, -0.5f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f),
-	DirectX::XMFLOAT4(-0.5f, 0.5f, 0.5f, 1.0f), DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), 
-	};
-
-	std::vector<int> indeces = { 0,1,2, 1,0,3 };
-
 	std::vector<UINT> strides = { 32 }; 
 	std::vector<UINT> offsets = { 0 };
 
 	TriangleComponent* square = new TriangleComponent(getInstance());
-	square->Initialize(L"./Shaders/MyVeryFirstShader.hlsl", points, indeces, strides, offsets);
+	Mesh squareMesh = MeshGenerator::getInstance()->getSquare(DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
+	square->Initialize(L"./Shaders/MyVeryFirstShader.hlsl", squareMesh.points, squareMesh.indeces, strides, offsets);
 	components.push_back(square);
+
+	TriangleComponent* star = new TriangleComponent(getInstance());
+	Mesh starMesh = MeshGenerator::getInstance()->getStar(DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f));
+	star->Initialize(L"./Shaders/MyVeryFirstShader.hlsl", starMesh.points, starMesh.indeces, strides, offsets);
+	components.push_back(star);
 }
 
 void Game::CreateBackBuffer()
@@ -83,15 +80,12 @@ void Game::Draw()
 {
 	float color[] = { totalTime, 0.1f, 0.1f, 1.0f };
 	context->ClearRenderTargetView(renderView, color);
-	for (GameComponent* component : components) {
-		component->Draw();
-	}
+
 	context->OMSetRenderTargets(1, &renderView, nullptr);
 
 	for (GameComponent* component : components) {
 		component->Draw();
 	}
-
 	context->OMSetRenderTargets(0, nullptr, nullptr);
 	swapChain->Present(1, /*DXGI_PRESENT_DO_NOT_WAIT*/ 0);
 }
@@ -102,8 +96,6 @@ void Game::EndFrame()
 
 int Game::Exit()
 {
-	std::cout << "exit";
-
 	delete window;
 	delete inputDevice;
 
