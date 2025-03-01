@@ -20,10 +20,11 @@
 
 int main()
 {
-	int screenWidth = 800;
-	int screenHeight = 800;
+	int screenWidth = 2000;
+	int screenHeight = 1300;
 	Game* app = Game::getInstance();
 	app->Initialize(screenWidth, screenHeight);
+	app->PongGame();
 	app->Run();
 }
 

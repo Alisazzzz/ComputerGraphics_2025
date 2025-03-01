@@ -10,6 +10,8 @@
 #include <vector>
 #include <mutex>
 
+#include <SimpleMath.h>
+
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3dcompiler.lib")
@@ -27,6 +29,8 @@ private:
 	Game() {};
 
 public:
+
+	bool isPong = false;
 
 	DisplayWin32* window;
 	std::vector<GameComponent*> components;
@@ -54,9 +58,7 @@ public:
 
 	static Game* getInstance() {
 		if (gameInstance == nullptr) {
-			if (gameInstance == nullptr) {
-				gameInstance = new Game();
-			}
+			gameInstance = new Game();
 		}
 		return gameInstance;
 	}
@@ -65,12 +67,17 @@ public:
 	void CreateBackBuffer();
 
 	void Draw();
+	void Update();
 	void EndFrame();
 	int Exit();
 
 	void PrepareFrame();
 
-	void Update();
+	void UpdateInterval();
 	void MessageHandler();
 	void Run();
+
+	void Resize();
+
+	void PongGame();
 };

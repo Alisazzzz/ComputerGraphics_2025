@@ -4,6 +4,8 @@
 #include "TriangleComponent.h"
 #include "MeshGenerator.h"
 
+#include "Pong.h"
+
 Game* Game::gameInstance = nullptr;
 
 void Game::Initialize(int screenWidthInput, int screenHeightInput)
@@ -55,11 +57,13 @@ void Game::Initialize(int screenWidthInput, int screenHeightInput)
 	}
 
 	CreateBackBuffer();
+
 	res = device->CreateRenderTargetView(backBuffer, nullptr, &renderView);
 
 	std::vector<UINT> strides = { 32 }; 
 	std::vector<UINT> offsets = { 0 };
 
+	/*
 	TriangleComponent* square = new TriangleComponent(getInstance());
 	Mesh squareMesh = MeshGenerator::getInstance()->getSquare(DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
 	square->Initialize(L"./Shaders/MyVeryFirstShader.hlsl", squareMesh.points, squareMesh.indeces, strides, offsets);
@@ -69,6 +73,8 @@ void Game::Initialize(int screenWidthInput, int screenHeightInput)
 	Mesh starMesh = MeshGenerator::getInstance()->getStar(DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f));
 	star->Initialize(L"./Shaders/MyVeryFirstShader.hlsl", starMesh.points, starMesh.indeces, strides, offsets);
 	components.push_back(star);
+	*/
+
 }
 
 void Game::CreateBackBuffer()
@@ -78,7 +84,7 @@ void Game::CreateBackBuffer()
 
 void Game::Draw()
 {
-	float color[] = { totalTime, 0.1f, 0.1f, 1.0f };
+	float color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	context->ClearRenderTargetView(renderView, color);
 
 	context->OMSetRenderTargets(1, &renderView, nullptr);
@@ -88,6 +94,35 @@ void Game::Draw()
 	}
 	context->OMSetRenderTargets(0, nullptr, nullptr);
 	swapChain->Present(1, /*DXGI_PRESENT_DO_NOT_WAIT*/ 0);
+}
+
+void Game::Update()
+{
+	if (isPong) {
+		Pong* pong = Pong::getInstance();
+		pong->Update();
+		if (pong->netUpdateTime > 0.5f) {
+			for (int i = 0; i < components.size() - 3; i++) {
+				if (i == pong->netCount) components[i]->constData.color = Vector4(0.5f, 0.5f, 0.5f, 0.0f);
+				else components[i]->constData.color = Vector4(0.0f, 0.0f, 0.0f, 0.0f);
+			}
+			pong->netCount += 1;
+			if (pong->netCount == 9) pong->netCount = 0;
+			pong->netUpdateTime = 0.0f;
+		};
+	};
+
+	float aspectRatio = static_cast<float>(screenWidth) / static_cast<float>(screenHeight);
+	float orthoHeight = 2.0f;
+	float orthoWidth = orthoHeight * aspectRatio;
+
+	Matrix proj = Matrix::CreateOrthographic(orthoWidth, orthoHeight, 0.01f, 100.0f);
+	proj = proj.Transpose();
+
+	for (GameComponent* component : components) {
+		component->constData.projection = proj;
+		component->Update();
+	}
 }
 
 void Game::EndFrame()
@@ -103,6 +138,8 @@ int Game::Exit()
 		component->DestroyResources();
 		delete component;
 	}
+
+	if (isPong) delete Pong::getInstance();
 
 	context->Release();
 	device->Release();
@@ -131,7 +168,7 @@ void Game::PrepareFrame()
 	context->RSSetViewports(1, &viewport);
 }
 
-void Game::Update()
+void Game::UpdateInterval()
 {
 	auto curTime = std::chrono::steady_clock::now();
 	float deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(curTime - PrevTime).count() / 1000000.0f;
@@ -151,7 +188,12 @@ void Game::Update()
 		frameCount = 0;
 	}
 
+	if (isPong) {
+		Pong::getInstance()->UpdateInterval(deltaTime);
+	}
+
 	PrepareFrame();
+	Update();
 	Draw();
 	EndFrame();
 }
@@ -177,7 +219,31 @@ void Game::Run()
 
 	while (!isExitRequested) {
 		MessageHandler();
-		Update();
+		UpdateInterval();
 	}
 	Exit();
+}
+
+void Game::Resize()
+{
+}
+
+void Game::PongGame()
+{
+	isPong = true;
+	Pong* pongGame = Pong::getInstance();
+
+	std::vector<UINT> strides = { 32 };
+	std::vector<UINT> offsets = { 0 };
+
+	for (int i = 1; i < 10; i++) {
+		TriangleComponent* square = new TriangleComponent(getInstance());
+		Mesh squareMesh = MeshGenerator::getInstance()->getSmallSquare(DirectX::XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f));
+		square->Initialize(L"./Shaders/MyVeryFirstShader.hlsl", squareMesh.points, squareMesh.indeces, strides, offsets);
+		square->transforms.scale = Matrix::CreateScale(0.6f, 1.2f, 1.0f);
+		square->transforms.move = Matrix::CreateTranslation(0.0f, -1.0 + i * 0.2f, 0.0f);
+		components.push_back(square);
+	}
+
+	pongGame->Initialize();
 }

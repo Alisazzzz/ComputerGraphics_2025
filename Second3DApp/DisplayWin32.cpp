@@ -1,8 +1,10 @@
 #include "DisplayWin32.h"
 #include "Game.h"
+#include "Pong.h"
 
 LRESULT DisplayWin32::WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 {
+
 	Game* game = Game::getInstance();
 
 	switch (umessage)
@@ -10,15 +12,26 @@ LRESULT DisplayWin32::WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lp
 		case WM_KEYDOWN:
 		{
 			// If a key is pressed send it to the input object so it can record that state.
-			std::cout << "Key: " << static_cast<unsigned int>(wparam) << std::endl;
+			// std::cout << "Key: " << static_cast<unsigned int>(wparam) << std::endl;
 
-			if (static_cast<unsigned int>(wparam) == 27) PostQuitMessage(0);
-			return 0;
+			if (game->isPong) {
+				if (wparam < 256) Pong::getInstance()->keys[wparam] = true;
+			}
+
+			if (static_cast<unsigned int>(wparam) == 27) {
+				PostQuitMessage(0);
+				return 0;
+			}
+			break;
 		}
-		default:
+
+		case WM_KEYUP:
 		{
-			return DefWindowProc(hwnd, umessage, wparam, lparam);
+			if (game->isPong) {
+				if (wparam < 256) Pong::getInstance()->keys[wparam] = false;
+			}
 		}
+
 		case WM_INPUT:
 		{
 			UINT dwSize = 0;
@@ -65,6 +78,11 @@ LRESULT DisplayWin32::WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lp
 			}
 
 			delete[] lpb;
+			return DefWindowProc(hwnd, umessage, wparam, lparam);
+		}
+
+		default:
+		{
 			return DefWindowProc(hwnd, umessage, wparam, lparam);
 		}
 	}

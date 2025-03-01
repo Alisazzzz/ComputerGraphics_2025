@@ -10,12 +10,34 @@ struct PS_IN
  	float4 col : COLOR;
 };
 
+struct ConstantData
+{
+    float4 offset;
+    float4 color;
+};
+
+cbuffer ConstBuf : register(b0)
+{
+    matrix transformations;
+    matrix view;
+    matrix projection;
+    float4 color;
+}
+
 PS_IN VSMain( VS_IN input )
 {
 	PS_IN output = (PS_IN)0;
 	
-	output.pos = input.pos;
-	output.col = input.col;
+    float4 pos = float4(input.pos.xyz, 1.0f);
+    
+    pos = mul(pos, transformations);
+    pos = mul(pos, view);
+    pos = mul(pos, projection);
+    
+    output.pos = pos;
+    
+    
+    output.col = (input.col + color);
 	
 	return output;
 }

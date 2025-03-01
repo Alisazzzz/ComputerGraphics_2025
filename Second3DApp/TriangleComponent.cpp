@@ -106,15 +106,38 @@ void TriangleComponent::Initialize(LPCWSTR shaderSource,
 	rastDesc.FillMode =  D3D11_FILL_SOLID  /* D3D11_FILL_WIREFRAME*/;
 
 	res = game->device->CreateRasterizerState(&rastDesc, &rastState);
+
+	D3D11_BUFFER_DESC constBufferDesc = {};
+	constBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	constBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	constBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	constBufferDesc.MiscFlags = 0;
+	constBufferDesc.StructureByteStride = 0;
+	constBufferDesc.ByteWidth = sizeof(ConstData);
+
+	game->device->CreateBuffer(&constBufferDesc, nullptr, &constBuffer);
+
+	transforms = {};
+	transforms.move = Matrix::CreateTranslation(0.0f, 0.0f, 0.0f);
+	transforms.rotate = Matrix::CreateFromYawPitchRoll(0.0f, 0.0f, 0.0f);
+	transforms.scale = Matrix::CreateScale(1.0f, 1.0f, 1.0f);
+
+	constData = {};
+	constData.transformations = transforms.scale * transforms.rotate * transforms.move;
+	constData.color = Vector4(0.0f, 0.0f, 0.0f, 0.0f);
 }
 
-void TriangleComponent::Draw()
+void TriangleComponent::Draw(ConstData* data)
 {
 	game->context->RSSetState(rastState);
 
 	game->context->IASetInputLayout(layout);
 	game->context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	game->context->IASetIndexBuffer(ib, DXGI_FORMAT_R32_UINT, 0);
+
+	game->context->VSSetConstantBuffers(0, 1, &constBuffer);
+	game->context->VSSetConstantBuffers(2, 1, &constBuffer2);
+
 	game->context->IASetVertexBuffers(0, 1, &vb, strides.data(), offsets.data());
 	game->context->VSSetShader(vertexShader, nullptr, 0);
 	game->context->PSSetShader(pixelShader, nullptr, 0);
@@ -122,8 +145,15 @@ void TriangleComponent::Draw()
 	game->context->DrawIndexed(indeces.size(), 0, 0);
 }
 
-void TriangleComponent::Update()
+void TriangleComponent::Update(ConstData* data)
 {
+	constData.transformations = transforms.scale * transforms.rotate * transforms.move;
+	constData.transformations = constData.transformations.Transpose();
+
+	D3D11_MAPPED_SUBRESOURCE res = {};
+	game->context->Map(constBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &res);
+	memcpy(res.pData, &constData, sizeof(ConstData));
+	game->context->Unmap(constBuffer, 0);
 }
 
 void TriangleComponent::DestroyResources()
