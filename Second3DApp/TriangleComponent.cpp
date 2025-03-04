@@ -127,7 +127,7 @@ void TriangleComponent::Initialize(LPCWSTR shaderSource,
 	constData.color = Vector4(0.0f, 0.0f, 0.0f, 0.0f);
 }
 
-void TriangleComponent::Draw(ConstData* data)
+void TriangleComponent::Draw()
 {
 	game->context->RSSetState(rastState);
 
@@ -136,7 +136,6 @@ void TriangleComponent::Draw(ConstData* data)
 	game->context->IASetIndexBuffer(ib, DXGI_FORMAT_R32_UINT, 0);
 
 	game->context->VSSetConstantBuffers(0, 1, &constBuffer);
-	game->context->VSSetConstantBuffers(2, 1, &constBuffer2);
 
 	game->context->IASetVertexBuffers(0, 1, &vb, strides.data(), offsets.data());
 	game->context->VSSetShader(vertexShader, nullptr, 0);
@@ -145,10 +144,16 @@ void TriangleComponent::Draw(ConstData* data)
 	game->context->DrawIndexed(indeces.size(), 0, 0);
 }
 
-void TriangleComponent::Update(ConstData* data)
+void TriangleComponent::Update()
 {
 	constData.transformations = transforms.scale * transforms.rotate * transforms.move;
 	constData.transformations = constData.transformations.Transpose();
+
+	constData.view = game->activeCamera->cameraInfo.view;
+	constData.view = constData.view.Transpose();
+
+	constData.projection = game->activeCamera->cameraInfo.projection;
+	constData.projection = constData.projection.Transpose();
 
 	D3D11_MAPPED_SUBRESOURCE res = {};
 	game->context->Map(constBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &res);

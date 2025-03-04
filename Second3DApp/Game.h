@@ -19,6 +19,12 @@
 
 #include "GameComponent.h"
 #include "InputDevice.h"
+#include "Camera.h"
+#include "FPSCamera.h"
+#include "OrbitCamera.h"
+
+#include <unordered_set>
+#include "Keys.h"
 
 class DisplayWin32;
 
@@ -63,6 +69,10 @@ public:
 		return gameInstance;
 	}
 
+	Camera* activeCamera;
+	OrbitCamera* camm;
+	//FPSCamera* camm;
+
 	void Initialize(int screenWidthInput, int screenHeightInput);
 	void CreateBackBuffer();
 
@@ -78,6 +88,7 @@ public:
 	void Run();
 
 	void Resize();
+	void CameraUpdate(Vector2 mouseInput, std::unordered_set<Keys>* keys);
 
 	void PongGame();
 };

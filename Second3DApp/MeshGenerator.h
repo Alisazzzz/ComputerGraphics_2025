@@ -33,5 +33,7 @@ public:
 	Mesh getStar(DirectX::XMFLOAT4 color);
 	Mesh getSmallSquare(DirectX::XMFLOAT4 color);
 	Mesh getVerticalRectangle(DirectX::XMFLOAT4 color);
+
+	Mesh getCube(DirectX::XMFLOAT4 color);
 };
 

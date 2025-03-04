@@ -64,4 +64,35 @@ Mesh MeshGenerator::getVerticalRectangle(DirectX::XMFLOAT4 color)
 	Mesh result = { points, indeces };
 	return result;
 }
-;
+Mesh MeshGenerator::getCube(DirectX::XMFLOAT4 color)
+{
+	std::vector<DirectX::XMFLOAT4> points = {
+		// Front face
+		DirectX::XMFLOAT4(-0.5f, -0.5f,  0.5f, 1.0f), color,
+		DirectX::XMFLOAT4(0.5f, -0.5f,  0.5f, 1.0f), color,
+		DirectX::XMFLOAT4(0.5f,  0.5f,  0.5f, 1.0f), color,
+		DirectX::XMFLOAT4(-0.5f,  0.5f,  0.5f, 1.0f), color,
+
+		// Back face
+		DirectX::XMFLOAT4(-0.5f, -0.5f, -0.5f, 1.0f), color,
+		DirectX::XMFLOAT4(0.5f, -0.5f, -0.5f, 1.0f), color,
+		DirectX::XMFLOAT4(0.5f,  0.5f, -0.5f, 1.0f), color,
+		DirectX::XMFLOAT4(-0.5f,  0.5f, -0.5f, 1.0f), color,
+	};
+
+	std::vector<int> indices = {	
+		0, 1, 2,  0, 2, 3, // Front face	
+		4, 6, 5,  4, 7, 6, // Back face
+		// Left face
+		4, 0, 3,  4, 3, 7,
+		// Right face
+		1, 5, 6,  1, 6, 2,
+		// Top face
+		3, 2, 6,  3, 6, 7,
+		// Bottom face
+		4, 5, 1,  4, 1, 0
+	};
+
+	Mesh result = { points, indices };
+	return result;
+}

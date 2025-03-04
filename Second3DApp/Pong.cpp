@@ -61,6 +61,16 @@ void Pong::Initialize()
 
     Game* game = Game::getInstance();
 
+    for (int i = 1; i < 10; i++) {
+        TriangleComponent* square = new TriangleComponent(game);
+        Mesh squareMesh = MeshGenerator::getInstance()->getSmallSquare(DirectX::XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f));
+        square->Initialize(L"./Shaders/MyVeryFirstShader.hlsl", squareMesh.points, squareMesh.indeces, strides, offsets);
+        square->transforms.scale = Matrix::CreateScale(0.6f, 1.2f, 1.0f);
+        square->transforms.move = Matrix::CreateTranslation(0.0f, -1.0 + i * 0.2f, 0.0f);
+        game->components.push_back(square);
+        additionals.push_back(square);
+    }
+
 	TriangleComponent* ballComponent = new TriangleComponent(game);
 	Mesh ballMesh = MeshGenerator::getInstance()->getSmallSquare(DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
 	ballComponent->Initialize(L"./Shaders/MyVeryFirstShader.hlsl", ballMesh.points, ballMesh.indeces, strides, offsets);
@@ -120,6 +130,12 @@ void Pong::Initialize()
 
     bottomCollision.Center = { 0.0f, -1.0f, 1.0f };
     bottomCollision.Extents = { shiftX, 0.01f, 1.0f };
+
+    camera = new OrthoCamera(game);
+    camera->Initialize();
+    camera->SetOrthoHeight(2.0f);
+    camera->SetTarget(Vector3(0.0f, 0.0f, -1.0f));
+    game->activeCamera = camera;
 
     StartRound(0);
 }
@@ -259,6 +275,16 @@ void Pong::CheckCollisions()
 
 void Pong::Update()
 {
+    if (netUpdateTime > 0.5f) {
+        for (int i = 0; i < additionals.size(); i++) {
+            if (i == netCount) additionals[i]->constData.color = Vector4(0.5f, 0.5f, 0.5f, 0.0f);
+            else additionals[i]->constData.color = Vector4(0.0f, 0.0f, 0.0f, 0.0f);
+        }
+        netCount += 1;
+        if (netCount == 9) netCount = 0;
+        netUpdateTime = 0.0f;
+    }
+
     ball->mesh->transforms.move = Matrix::CreateTranslation(ball->position);
     ball->collision.Center = ball->position;
 
@@ -300,9 +326,10 @@ void Pong::UpdateInterval(float deltaTime)
     UpdateBall(deltaTime);
 
     CheckCollisions();
-    if (netUpdateTime == 0.0f) {
-        leftAnim = false;
-        rightAnim = false;
-    }
+}
+
+void Pong::DestroyResources()
+{
+    delete camera;
 }
 

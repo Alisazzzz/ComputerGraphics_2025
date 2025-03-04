@@ -24,7 +24,7 @@ int main()
 	int screenHeight = 1300;
 	Game* app = Game::getInstance();
 	app->Initialize(screenWidth, screenHeight);
-	app->PongGame();
+	//app->PongGame();
 	app->Run();
 }
 

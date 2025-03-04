@@ -11,6 +11,8 @@
 #include "TriangleComponent.h"
 #include "MeshGenerator.h"
 
+#include "OrthoCamera.h"
+
 class Game;
 
 using namespace DirectX::SimpleMath;
@@ -43,7 +45,10 @@ private:
 
 	UINT rightCounts = 1;
 	UINT leftCounts = 1;
-	bool leftAnim, rightAnim = false;
+
+	std::vector<TriangleComponent*> additionals;
+
+	OrthoCamera* camera;
 
 public:
 	PongObject* leftPaddle;
@@ -71,5 +76,7 @@ public:
 		}
 		return pongInstance;
 	}
+
+	void DestroyResources();
 };
 

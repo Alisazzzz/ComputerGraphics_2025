@@ -75,6 +75,16 @@ void Game::Initialize(int screenWidthInput, int screenHeightInput)
 	components.push_back(star);
 	*/
 
+	TriangleComponent* cube = new TriangleComponent(getInstance());
+	Mesh squareMesh = MeshGenerator::getInstance()->getCube(DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
+	cube->Initialize(L"./Shaders/MyVeryFirstShader.hlsl", squareMesh.points, squareMesh.indeces, strides, offsets);
+	components.push_back(cube);
+
+	camm = new OrbitCamera(getInstance());
+	//camm = new FPSCamera(getInstance());
+	camm->Initialize();
+	activeCamera = camm;
+	components.push_back(camm);
 }
 
 void Game::CreateBackBuffer()
@@ -101,26 +111,14 @@ void Game::Update()
 	if (isPong) {
 		Pong* pong = Pong::getInstance();
 		pong->Update();
-		if (pong->netUpdateTime > 0.5f) {
-			for (int i = 0; i < components.size() - 3; i++) {
-				if (i == pong->netCount) components[i]->constData.color = Vector4(0.5f, 0.5f, 0.5f, 0.0f);
-				else components[i]->constData.color = Vector4(0.0f, 0.0f, 0.0f, 0.0f);
-			}
-			pong->netCount += 1;
-			if (pong->netCount == 9) pong->netCount = 0;
-			pong->netUpdateTime = 0.0f;
-		};
 	};
 
-	float aspectRatio = static_cast<float>(screenWidth) / static_cast<float>(screenHeight);
-	float orthoHeight = 2.0f;
-	float orthoWidth = orthoHeight * aspectRatio;
-
-	Matrix proj = Matrix::CreateOrthographic(orthoWidth, orthoHeight, 0.01f, 100.0f);
-	proj = proj.Transpose();
+	//Matrix view = Matrix::CreateLookAt(Vector3(0.0f, 0.0f, 1.0f), Vector3(0.0f, 0.0f, 0.0f), Vector3(0.0f, 1.0f, 0.0f));
+	//view = view.Transpose();
+	//Matrix proj = Matrix::CreatePerspectiveFieldOfView(180.0f, aspectRatio, 0.01f, 100.0f);
+	//Matrix proj = Matrix::CreateOrthographic(orthoWidth, orthoHeight, 0.01f, 100.0f);
 
 	for (GameComponent* component : components) {
-		component->constData.projection = proj;
 		component->Update();
 	}
 }
@@ -139,7 +137,10 @@ int Game::Exit()
 		delete component;
 	}
 
-	if (isPong) delete Pong::getInstance();
+	if (isPong) {
+		Pong::getInstance()->DestroyResources();
+		delete Pong::getInstance();
+	}
 
 	context->Release();
 	device->Release();
@@ -228,22 +229,20 @@ void Game::Resize()
 {
 }
 
+void Game::CameraUpdate(Vector2 mouseInput, std::unordered_set<Keys>* keys)
+{
+	activeCamera->CameraRotate(mouseInput);
+
+	auto curTime = std::chrono::steady_clock::now();
+	float deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(curTime - PrevTime).count() / 1000000.0f;
+
+	activeCamera->CameraMove(keys, deltaTime);
+}
+
 void Game::PongGame()
 {
 	isPong = true;
 	Pong* pongGame = Pong::getInstance();
-
-	std::vector<UINT> strides = { 32 };
-	std::vector<UINT> offsets = { 0 };
-
-	for (int i = 1; i < 10; i++) {
-		TriangleComponent* square = new TriangleComponent(getInstance());
-		Mesh squareMesh = MeshGenerator::getInstance()->getSmallSquare(DirectX::XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f));
-		square->Initialize(L"./Shaders/MyVeryFirstShader.hlsl", squareMesh.points, squareMesh.indeces, strides, offsets);
-		square->transforms.scale = Matrix::CreateScale(0.6f, 1.2f, 1.0f);
-		square->transforms.move = Matrix::CreateTranslation(0.0f, -1.0 + i * 0.2f, 0.0f);
-		components.push_back(square);
-	}
 
 	pongGame->Initialize();
 }

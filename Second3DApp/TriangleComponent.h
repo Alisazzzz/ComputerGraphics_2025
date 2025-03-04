@@ -16,6 +16,19 @@
 
 #include "GameComponent.h"
 
+struct ConstData {
+	Matrix transformations;
+	Matrix view;
+	Matrix projection;
+	Vector4 color;
+};
+
+struct Transformations {
+	Matrix move;
+	Matrix rotate;
+	Matrix scale;
+};
+
 class TriangleComponent : public GameComponent
 {
 private:
@@ -31,18 +44,18 @@ private:
 	ID3D11Buffer* ib;
 	ID3D11RasterizerState* rastState;
 
-
-
 	ID3D11Buffer* constBuffer;
-	ID3D11Buffer* constBuffer2;
 
 	std::vector<UINT> strides;
 	std::vector<UINT> offsets;
 
-public:
-
-	std::vector<DirectX::XMFLOAT4> points;
 	std::vector<int> indeces;
+
+public:
+	std::vector<DirectX::XMFLOAT4> points;
+
+	Transformations transforms;
+	ConstData constData;
 
 	TriangleComponent(Game* gameInput) : GameComponent(gameInput) 
 	{
@@ -59,16 +72,15 @@ public:
 		rastState = nullptr;
 
 		constBuffer = nullptr;
-		constBuffer2 = nullptr;
 	};
 
 	void Initialize(LPCWSTR shaderSource, 
 		std::vector<DirectX::XMFLOAT4> pointsInput, std::vector<int> indecesInput,
 		std::vector<UINT> stridesInput, std::vector<UINT> offsetsInput);
 
-	void Draw(ConstData* data = nullptr);
+	void Draw();
 
-	void Update(ConstData* data = nullptr);
+	void Update();
 	void DestroyResources();
 };
 
