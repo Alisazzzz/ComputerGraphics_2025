@@ -28,7 +28,7 @@ private:
 	float nearPlane;
 	float farPlane;
 
-	float cameraSensitivity = 0.001f;
+	float cameraSensitivity = 0.002f;
 	float cameraSpeed = 0.5f;
 
 	Vector3 velocity;

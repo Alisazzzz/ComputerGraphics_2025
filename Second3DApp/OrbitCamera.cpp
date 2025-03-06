@@ -4,10 +4,12 @@
 #include <unordered_set>
 #include "Keys.h"
 
-void OrbitCamera::Initialize()
+void OrbitCamera::Initialize(Vector3 orbitInput, Vector3 lookPointInput, Vector3 targetInput)
 {
-	lookPoint = Vector3(0.0f, 0.0f, -1.0f);
-	target = Vector3(0.0f, 0.0f, 0.0f);
+	orbit = orbitInput;
+
+	lookPoint = lookPointInput;
+	target = targetInput;
 	upAxis = Vector3(0.0f, 1.0f, 0.0f);
 
 	fov = 30.0f;
@@ -18,28 +20,17 @@ void OrbitCamera::Initialize()
 	cameraInfo.projection = Matrix::CreatePerspectiveFieldOfView(fov, aspectRatio, nearPlane, farPlane);
 	cameraInfo.view = Matrix::CreateLookAt(lookPoint, target, upAxis);
 
-	velocity = Vector3(0.0f, 0.0f, 0.0f);
-
-	//cameraYaw = atan2(target.z, target.x);
-	//cameraPitch = asin(target.y);
 	cameraYaw = 0.0f;
 	cameraPitch = 0.0f;
+
+	Vector3 camPosition = Vector3(Vector3::Distance(target, lookPoint), 0.0f, 0.0f);
+	Matrix rotationMatrix = Matrix::CreateFromYawPitchRoll(cameraYaw, 0, cameraPitch);
+	orbit = Vector3::Transform(camPosition, rotationMatrix);
 }
 
-void OrbitCamera::SetLookPoint(Vector3 lookPointInput)
-{
-	lookPoint = lookPointInput;
-}
-
-void OrbitCamera::SetTarget(Vector3 targetInput)
-{
-	target = targetInput;
-}
-
-void OrbitCamera::SetUpAxis(Vector3 upAxisInput)
-{
-	upAxis = upAxisInput;
-}
+void OrbitCamera::SetLookPoint(Vector3 lookPointInput) { lookPoint = lookPointInput; }
+void OrbitCamera::SetTarget(Vector3 targetInput) { target = targetInput; }
+void OrbitCamera::SetUpAxis(Vector3 upAxisInput) { upAxis = upAxisInput; }
 
 void OrbitCamera::CameraRotate(Vector2 mouseInput)
 {
@@ -53,9 +44,8 @@ void OrbitCamera::CameraRotate(Vector2 mouseInput)
 	if (cameraPitch > pitchLimit) cameraPitch = pitchLimit;
 
 	Matrix rotationMatrix = Matrix::CreateFromYawPitchRoll(cameraYaw, 0, cameraPitch);
-
-	lookPoint = Vector3::Transform(camPosition, rotationMatrix);
-
+	
+	orbit = Vector3::Transform(camPosition, rotationMatrix);
 }
 
 void OrbitCamera::CameraMove(std::unordered_set<Keys>* keys, float deltaTime) {}

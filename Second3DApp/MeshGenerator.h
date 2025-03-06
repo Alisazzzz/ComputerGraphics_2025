@@ -34,6 +34,8 @@ public:
 	Mesh getSmallSquare(DirectX::XMFLOAT4 color);
 	Mesh getVerticalRectangle(DirectX::XMFLOAT4 color);
 
-	Mesh getCube(DirectX::XMFLOAT4 color);
+	Mesh getCube(float size, DirectX::XMFLOAT4 color);
+	Mesh getSphere(float radius, int latitudeBands, int longitudeBands, 
+		DirectX::XMFLOAT4 color_first, DirectX::XMFLOAT4 color_second);
 };
 

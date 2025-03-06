@@ -67,10 +67,14 @@ void FPSCamera::CameraMove(std::unordered_set<Keys>* keys, float deltaTime)
 
 	float speed = 4.0f * deltaTime;
 
-	if (keys->count(Keys::W)) velocity = forward * speed;
-	if (keys->count(Keys::S)) velocity = -forward * speed;
-	if (keys->count(Keys::A)) velocity = -right * speed;
-	if (keys->count(Keys::D)) velocity = right * speed;
+	if (game->inputDevice->IsKeyDown(Keys::W)) velocity = forward * speed;
+	if (game->inputDevice->IsKeyDown(Keys::S)) velocity = - forward * speed;
+	if (game->inputDevice->IsKeyDown(Keys::A)) velocity = - right * speed;
+	if (game->inputDevice->IsKeyDown(Keys::D)) velocity = right * speed;
+	//if (keys->count(Keys::W)) velocity = forward * speed;
+	//if (keys->count(Keys::S)) velocity = -forward * speed;
+	//if (keys->count(Keys::A)) velocity = -right * speed;
+	//if (keys->count(Keys::D)) velocity = right * speed;
 
 	if (!keys->count(Keys::W) && !keys->count(Keys::S) && !keys->count(Keys::A) && !keys->count(Keys::D)) 
 		velocity = Vector3(0.0f, 0.0f, 0.0f);

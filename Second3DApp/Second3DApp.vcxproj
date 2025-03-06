@@ -30,6 +30,7 @@
     <ClCompile Include="MySuper3DApp.cpp" />
     <ClCompile Include="OrbitCamera.cpp" />
     <ClCompile Include="OrthoCamera.cpp" />
+    <ClCompile Include="PlanetSystem.cpp" />
     <ClCompile Include="Pong.cpp" />
     <ClCompile Include="TriangleComponent.cpp" />
   </ItemGroup>
@@ -49,6 +50,7 @@
     <ClInclude Include="MeshGenerator.h" />
     <ClInclude Include="OrbitCamera.h" />
     <ClInclude Include="OrthoCamera.h" />
+    <ClInclude Include="PlanetSystem.h" />
     <ClInclude Include="Pong.h" />
     <ClInclude Include="TriangleComponent.h" />
   </ItemGroup>

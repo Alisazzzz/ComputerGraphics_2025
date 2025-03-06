@@ -85,7 +85,7 @@ void InputDevice::OnMouseMove(RawMouseEventArgs args)
 	//	MouseWheelDelta);
 
 	MouseMove.Broadcast(moveArgs);
-	Game::getInstance()->CameraUpdate(MouseOffset, keys);
+	Game::getInstance()->MouseInputHandler(MouseOffset);
 }
 
 void InputDevice::AddPressedKey(Keys key)
@@ -94,13 +94,13 @@ void InputDevice::AddPressedKey(Keys key)
 	//	return;
 	//}
 	keys->insert(key);
-	Game::getInstance()->CameraUpdate(MouseOffset, keys);
+	Game::getInstance()->KeyInputHadnler(keys);
 }
 
 void InputDevice::RemovePressedKey(Keys key)
 {
 	keys->erase(key);
-	Game::getInstance()->CameraUpdate(MouseOffset, keys);
+	Game::getInstance()->KeyInputHadnler(keys);
 }
 
 bool InputDevice::IsKeyDown(Keys key)

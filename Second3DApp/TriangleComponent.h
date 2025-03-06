@@ -51,6 +51,8 @@ private:
 
 	std::vector<int> indeces;
 
+	bool is2D;
+
 public:
 	std::vector<DirectX::XMFLOAT4> points;
 
@@ -76,7 +78,8 @@ public:
 
 	void Initialize(LPCWSTR shaderSource, 
 		std::vector<DirectX::XMFLOAT4> pointsInput, std::vector<int> indecesInput,
-		std::vector<UINT> stridesInput, std::vector<UINT> offsetsInput);
+		std::vector<UINT> stridesInput, std::vector<UINT> offsetsInput,
+		bool is2DInput);
 
 	void Draw();
 

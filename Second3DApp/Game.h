@@ -37,6 +37,7 @@ private:
 public:
 
 	bool isPong = false;
+	bool isPlanetSystem = false;
 
 	DisplayWin32* window;
 	std::vector<GameComponent*> components;
@@ -56,6 +57,9 @@ public:
 	Microsoft::WRL::ComPtr<ID3D11Device> device;
 	IDXGISwapChain* swapChain;
 
+	ID3D11Texture2D* depthStencilBuffer;
+	ID3D11DepthStencilView* depthStencilView;
+
 	float totalTime = 0;
 	unsigned int frameCount = 0;
 	std::chrono::time_point<std::chrono::steady_clock> PrevTime;
@@ -70,7 +74,7 @@ public:
 	}
 
 	Camera* activeCamera;
-	OrbitCamera* camm;
+	//OrbitCamera* camm;
 	//FPSCamera* camm;
 
 	void Initialize(int screenWidthInput, int screenHeightInput);
@@ -85,10 +89,13 @@ public:
 
 	void UpdateInterval();
 	void MessageHandler();
-	void Run();
 
+	void KeyInputHadnler(std::unordered_set<Keys>* keys);
+	void MouseInputHandler(Vector2 mouseInput);
+
+	void Run();
 	void Resize();
-	void CameraUpdate(Vector2 mouseInput, std::unordered_set<Keys>* keys);
 
 	void PongGame();
+	void PlanetSystemView();
 };

@@ -60,6 +60,9 @@
     <ClCompile Include="OrthoCamera.cpp">
       <Filter>Source Files\Cameras</Filter>
     </ClCompile>
+    <ClCompile Include="PlanetSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\MyVeryFirstShader.hlsl" />
@@ -100,6 +103,9 @@
     </ClInclude>
     <ClInclude Include="Camera.h">
       <Filter>Header Files\Cameras</Filter>
+    </ClInclude>
+    <ClInclude Include="PlanetSystem.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

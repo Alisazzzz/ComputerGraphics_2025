@@ -31,15 +31,14 @@ private:
 	float cameraSensitivity = 0.005f;
 	float cameraSpeed = 0.5f;
 
-	Vector3 velocity;
-
 	float cameraYaw;
 	float cameraPitch;
 public:
+	Vector3 orbit;
 
 	OrbitCamera(Game* gameInput) : Camera(gameInput) {};
 
-	void Initialize();
+	void Initialize(Vector3 orbitInput, Vector3 lookPointInput, Vector3 targetInput);
 
 	void SetLookPoint(Vector3 lookPointInput);
 	void SetTarget(Vector3 targetInput);

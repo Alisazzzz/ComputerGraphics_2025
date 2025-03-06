@@ -64,7 +64,7 @@ void Pong::Initialize()
     for (int i = 1; i < 10; i++) {
         TriangleComponent* square = new TriangleComponent(game);
         Mesh squareMesh = MeshGenerator::getInstance()->getSmallSquare(DirectX::XMFLOAT4(0.3f, 0.3f, 0.3f, 1.0f));
-        square->Initialize(L"./Shaders/MyVeryFirstShader.hlsl", squareMesh.points, squareMesh.indeces, strides, offsets);
+        square->Initialize(L"./Shaders/MyVeryFirstShader.hlsl", squareMesh.points, squareMesh.indeces, strides, offsets, true);
         square->transforms.scale = Matrix::CreateScale(0.6f, 1.2f, 1.0f);
         square->transforms.move = Matrix::CreateTranslation(0.0f, -1.0 + i * 0.2f, 0.0f);
         game->components.push_back(square);
@@ -73,7 +73,7 @@ void Pong::Initialize()
 
 	TriangleComponent* ballComponent = new TriangleComponent(game);
 	Mesh ballMesh = MeshGenerator::getInstance()->getSmallSquare(DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
-	ballComponent->Initialize(L"./Shaders/MyVeryFirstShader.hlsl", ballMesh.points, ballMesh.indeces, strides, offsets);
+	ballComponent->Initialize(L"./Shaders/MyVeryFirstShader.hlsl", ballMesh.points, ballMesh.indeces, strides, offsets, true);
     
     DirectX::BoundingBox ballCollision = createCollision(ballMesh.points);
 
@@ -87,7 +87,7 @@ void Pong::Initialize()
 
     Mesh paddleMeshLeft = MeshGenerator::getInstance()->getVerticalRectangle(DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
     TriangleComponent* paddleComponentLeft = new TriangleComponent(game);
-    paddleComponentLeft->Initialize(L"./Shaders/MyVeryFirstShader.hlsl", paddleMeshLeft.points, paddleMeshLeft.indeces, strides, offsets);
+    paddleComponentLeft->Initialize(L"./Shaders/MyVeryFirstShader.hlsl", paddleMeshLeft.points, paddleMeshLeft.indeces, strides, offsets, true);
     DirectX::BoundingBox paddleCollisionLeft = createCollision(paddleMeshLeft.points);
 
     Vector3 paddleLeftPosition = Vector3(-shiftX + 0.05f, 0.0f, 0.0f);
@@ -102,7 +102,7 @@ void Pong::Initialize()
 
     Mesh paddleMeshRight = MeshGenerator::getInstance()->getVerticalRectangle(DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
     TriangleComponent* paddleComponentRight = new TriangleComponent(game);
-    paddleComponentRight->Initialize(L"./Shaders/MyVeryFirstShader.hlsl", paddleMeshRight.points, paddleMeshRight.indeces, strides, offsets);
+    paddleComponentRight->Initialize(L"./Shaders/MyVeryFirstShader.hlsl", paddleMeshRight.points, paddleMeshRight.indeces, strides, offsets, true);
     DirectX::BoundingBox paddleCollisionRight = createCollision(paddleMeshRight.points);
 
     Vector3 paddleRightPosition = Vector3(shiftX - 0.05f, 0.0f, 0.0f);
@@ -330,6 +330,7 @@ void Pong::UpdateInterval(float deltaTime)
 
 void Pong::DestroyResources()
 {
+    //delete rightPaddle;
     delete camera;
 }
 

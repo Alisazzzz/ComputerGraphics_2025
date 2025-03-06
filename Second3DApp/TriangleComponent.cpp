@@ -3,13 +3,16 @@
 
 void TriangleComponent::Initialize(LPCWSTR shaderSource, 
 	std::vector<DirectX::XMFLOAT4> pointsInput, std::vector<int> indecesInput,
-	std::vector<UINT> stridesInput, std::vector<UINT> offsetsInput)
+	std::vector<UINT> stridesInput, std::vector<UINT> offsetsInput, 
+	bool is2DInput)
 {
 	points = pointsInput;
 	indeces = indecesInput;
 
 	strides = stridesInput;
 	offsets = offsetsInput;
+
+	is2D = is2DInput;
 
 	ID3DBlob* errorVertexCode = nullptr;
 	HRESULT res = D3DCompileFromFile(shaderSource,
@@ -102,8 +105,11 @@ void TriangleComponent::Initialize(LPCWSTR shaderSource,
 	game->device->CreateBuffer(&indexBufDesc, &indexData, &ib);
 
 	CD3D11_RASTERIZER_DESC rastDesc = {};
-	rastDesc.CullMode = D3D11_CULL_NONE;
-	rastDesc.FillMode =  D3D11_FILL_SOLID  /* D3D11_FILL_WIREFRAME*/;
+	if (is2D)
+		rastDesc.CullMode = D3D11_CULL_NONE;
+	else
+		rastDesc.CullMode = D3D11_CULL_BACK;
+	rastDesc.FillMode =  D3D11_FILL_SOLID /*D3D11_FILL_WIREFRAME*/;
 
 	res = game->device->CreateRasterizerState(&rastDesc, &rastState);
 
