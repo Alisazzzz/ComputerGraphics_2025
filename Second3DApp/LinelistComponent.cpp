@@ -1,13 +1,12 @@
-#include "TriangleComponent.h"
+﻿#include "LinelistComponent.h"
+
 #include "Game.h"
 
-void TriangleComponent::Initialize(LPCWSTR shaderSource,
+void LinelistComponent::Initialize(LPCWSTR shaderSource,
 	std::vector<DirectX::XMFLOAT4> pointsInput,
-	std::vector<int> indecesInput,
 	std::vector<UINT> stridesInput, std::vector<UINT> offsetsInput, bool is2DInput)
 {
 	points = pointsInput;
-	indeces = indecesInput;
 
 	strides = stridesInput;
 	offsets = offsetsInput;
@@ -89,27 +88,12 @@ void TriangleComponent::Initialize(LPCWSTR shaderSource,
 
 	game->device->CreateBuffer(&vertexBufDesc, &vertexData, &vb);
 
-	D3D11_BUFFER_DESC indexBufDesc = {};
-	indexBufDesc.Usage = D3D11_USAGE_DEFAULT;
-	indexBufDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	indexBufDesc.CPUAccessFlags = 0;
-	indexBufDesc.MiscFlags = 0;
-	indexBufDesc.StructureByteStride = 0;
-	indexBufDesc.ByteWidth = sizeof(int) * std::size(indeces);
-
-	D3D11_SUBRESOURCE_DATA indexData = {};
-	indexData.pSysMem = indeces.data();
-	indexData.SysMemPitch = 0;
-	indexData.SysMemSlicePitch = 0;
-
-	game->device->CreateBuffer(&indexBufDesc, &indexData, &ib);
-
 	CD3D11_RASTERIZER_DESC rastDesc = {};
 	if (is2D)
 		rastDesc.CullMode = D3D11_CULL_NONE;
 	else
 		rastDesc.CullMode = D3D11_CULL_BACK;
-	rastDesc.FillMode =  D3D11_FILL_SOLID /*D3D11_FILL_WIREFRAME*/;
+	rastDesc.FillMode = D3D11_FILL_SOLID /*D3D11_FILL_WIREFRAME*/;
 
 	res = game->device->CreateRasterizerState(&rastDesc, &rastState);
 
@@ -131,16 +115,14 @@ void TriangleComponent::Initialize(LPCWSTR shaderSource,
 	constData = {};
 	constData.transformations = transforms.scale * transforms.rotate * transforms.move;
 	constData.color = Vector4(0.0f, 0.0f, 0.0f, 0.0f);
-
 }
 
-void TriangleComponent::Draw()
+void LinelistComponent::Draw()
 {
 	game->context->RSSetState(rastState);
 
 	game->context->IASetInputLayout(layout);
-	game->context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	game->context->IASetIndexBuffer(ib, DXGI_FORMAT_R32_UINT, 0);
+	game->context->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_LINELIST);
 
 	game->context->VSSetConstantBuffers(0, 1, &constBuffer);
 
@@ -148,10 +130,10 @@ void TriangleComponent::Draw()
 	game->context->VSSetShader(vertexShader, nullptr, 0);
 	game->context->PSSetShader(pixelShader, nullptr, 0);
 
-	game->context->DrawIndexed(indeces.size(), 0, 0);
+	game->context->Draw(points.size() / 4.0f, 0);
 }
 
-void TriangleComponent::Update()
+void LinelistComponent::Update()
 {
 	constData.transformations = transforms.scale * transforms.rotate * transforms.move;
 	constData.transformations = constData.transformations.Transpose();
@@ -168,7 +150,7 @@ void TriangleComponent::Update()
 	game->context->Unmap(constBuffer, 0);
 }
 
-void TriangleComponent::DestroyResources()
+void LinelistComponent::DestroyResources()
 {
 	layout->Release();
 
@@ -178,8 +160,6 @@ void TriangleComponent::DestroyResources()
 
 	pixelShader->Release();
 	pixelByteCode->Release();
-
-	ib->Release();
 
 	rastState->Release();
 }

@@ -7,7 +7,7 @@
 void FPSCamera::Initialize()
 {
 	lookPoint = Vector3(0.0f, 0.0f, -1.0f);
-	target = Vector3(0.0f, 0.0f, 1.0f);
+	target = Vector3(0.0f, 0.0f, 0.0f);
 	upAxis = Vector3(0.0f, 1.0f, 0.0f);
 
 	fov = 30.0f;
@@ -20,18 +20,34 @@ void FPSCamera::Initialize()
 
 	velocity = Vector3(0.0f, 0.0f, 0.0f);
 
-	cameraYaw = atan2(target.z, target.x);
+	cameraYaw = atan2(target.z, -target.x);
 	cameraPitch = asin(target.y);
 }
 
 void FPSCamera::SetLookPoint(Vector3 lookPointInput)
 {
 	lookPoint = lookPointInput;
+
+	Vector3 direction;
+	direction.x = -cos(cameraYaw) * cos(cameraPitch);
+	direction.y = sin(cameraPitch);
+	direction.z = cos(cameraPitch) * sin(cameraYaw);
+	direction.Normalize();
+
+	target = lookPoint + direction;
 }
 
 void FPSCamera::SetTarget(Vector3 targetInput)
 {
 	target = targetInput;
+
+	Vector3 direction = target - lookPoint;
+	direction.Normalize();
+
+	cameraYaw = atan2(direction.z, -direction.x);
+	cameraPitch = asin(direction.y);
+
+	target = lookPoint + direction;
 }
 
 void FPSCamera::SetUpAxis(Vector3 upAxisInput)
@@ -49,15 +65,15 @@ void FPSCamera::CameraRotate(Vector2 mouseInput)
 	if (cameraPitch > pitchLimit) cameraPitch = pitchLimit;
 
 	Vector3 direction;
-	direction.x = - cosf(cameraYaw) * cosf(cameraPitch);
-	direction.y = sinf(cameraPitch);
-	direction.z = cosf(cameraPitch) * sinf(cameraYaw);
+	direction.x = - cos(cameraYaw) * cos(cameraPitch);
+	direction.y = sin(cameraPitch);
+	direction.z = cos(cameraPitch) * sin(cameraYaw);
 	direction.Normalize();
 
 	target = lookPoint + direction;
 }
 
-void FPSCamera::CameraMove(std::unordered_set<Keys>* keys, float deltaTime)
+void FPSCamera::CameraMove(float deltaTime)
 {
 	Vector3 forward = target - lookPoint;
 	forward.Normalize();
@@ -71,13 +87,13 @@ void FPSCamera::CameraMove(std::unordered_set<Keys>* keys, float deltaTime)
 	if (game->inputDevice->IsKeyDown(Keys::S)) velocity = - forward * speed;
 	if (game->inputDevice->IsKeyDown(Keys::A)) velocity = - right * speed;
 	if (game->inputDevice->IsKeyDown(Keys::D)) velocity = right * speed;
-	//if (keys->count(Keys::W)) velocity = forward * speed;
-	//if (keys->count(Keys::S)) velocity = -forward * speed;
-	//if (keys->count(Keys::A)) velocity = -right * speed;
-	//if (keys->count(Keys::D)) velocity = right * speed;
 
-	if (!keys->count(Keys::W) && !keys->count(Keys::S) && !keys->count(Keys::A) && !keys->count(Keys::D)) 
+	if (!(game->inputDevice->IsKeyDown(Keys::W)) &&
+		!(game->inputDevice->IsKeyDown(Keys::S)) &&
+		!(game->inputDevice->IsKeyDown(Keys::A)) &&
+		!(game->inputDevice->IsKeyDown(Keys::D)))
 		velocity = Vector3(0.0f, 0.0f, 0.0f);
+
 }
 
 

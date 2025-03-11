@@ -60,9 +60,21 @@ void Game::Initialize(int screenWidthInput, int screenHeightInput)
 	CreateBackBuffer();
 
 	res = device->CreateRenderTargetView(backBuffer, nullptr, &renderView);
+	
+	depthStencilBuffer = nullptr;
+	depthStencilView = nullptr;
 
+}
+
+void Game::CreateBackBuffer()
+{
+	auto res = swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer);
+}
+
+void Game::CreateDepthBuffer()
+{
 	D3D11_TEXTURE2D_DESC depthBufferDesc = {};
-	depthBufferDesc.Width = screenWidth; 
+	depthBufferDesc.Width = screenWidth;
 	depthBufferDesc.Height = screenHeight;
 	depthBufferDesc.MipLevels = 1;
 	depthBufferDesc.ArraySize = 1;
@@ -71,7 +83,6 @@ void Game::Initialize(int screenWidthInput, int screenHeightInput)
 	depthBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 	depthBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 
-	depthStencilBuffer = nullptr;
 	device->CreateTexture2D(&depthBufferDesc, nullptr, &depthStencilBuffer);
 
 	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc = {};
@@ -84,55 +95,17 @@ void Game::Initialize(int screenWidthInput, int screenHeightInput)
 
 	ID3D11DepthStencilState* depthStencilState;
 
-	if (isPong) {
-		D3D11_DEPTH_STENCIL_DESC depthDisabledDesc = {};
+	D3D11_DEPTH_STENCIL_DESC depthStencilDesc = {};
 
-		depthDisabledDesc.DepthEnable = FALSE;
-		depthDisabledDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+	depthStencilDesc.DepthEnable = TRUE;
+	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
 
-		depthDisabledDesc.StencilEnable = FALSE;
+	depthStencilDesc.StencilEnable = FALSE;
 
-		device->CreateDepthStencilState(&depthDisabledDesc, &depthStencilState);
-		std::cout << "dfgdfg";
-	}
-	else {
-		D3D11_DEPTH_STENCIL_DESC depthStencilDesc = {};
-
-		depthStencilDesc.DepthEnable = TRUE;
-		depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-		depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
-
-		depthStencilDesc.StencilEnable = FALSE;
-
-		device->CreateDepthStencilState(&depthStencilDesc, &depthStencilState);
-	};
-
-	context->OMSetDepthStencilState(depthStencilState, 1);
-
-	/*
-	std::vector<UINT> strides = { 32 }; 
-	std::vector<UINT> offsets = { 0 };
-
-	TriangleComponent* square = new TriangleComponent(getInstance());
-	Mesh squareMesh = MeshGenerator::getInstance()->getSquare(DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f));
-	square->Initialize(L"./Shaders/MyVeryFirstShader.hlsl", squareMesh.points, squareMesh.indeces, strides, offsets);
-	components.push_back(square);
-
-	TriangleComponent* star = new TriangleComponent(getInstance());
-	Mesh starMesh = MeshGenerator::getInstance()->getStar(DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f));
-	star->Initialize(L"./Shaders/MyVeryFirstShader.hlsl", starMesh.points, starMesh.indeces, strides, offsets);
-	components.push_back(star);
+	device->CreateDepthStencilState(&depthStencilDesc, &depthStencilState);
 	
-	TriangleComponent* cube = new TriangleComponent(getInstance());
-	Mesh squareMesh = MeshGenerator::getInstance()->getSphere(0.3f, 16, 16, Vector4(0.0f, 1.0f, 0.0f, 1.0f), Vector4(0.0f, 0.0f, 0.0f, 1.0f));
-	cube->Initialize(L"./Shaders/MyVeryFirstShader.hlsl", squareMesh.points, squareMesh.indeces, strides, offsets, false);
-	components.push_back(cube);
-	*/
-}
-
-void Game::CreateBackBuffer()
-{
-	auto res = swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer);
+	context->OMSetDepthStencilState(depthStencilState, 1);
 }
 
 void Game::Draw()
@@ -195,7 +168,8 @@ int Game::Exit()
 void Game::PrepareFrame() 
 {
 	context->ClearState();
-	context->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+	if(depthStencilView != nullptr)
+		context->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
 	D3D11_VIEWPORT viewport = {};
 	viewport.Width = static_cast<float>(screenWidth);
@@ -228,6 +202,8 @@ void Game::UpdateInterval()
 		frameCount = 0;
 	}
 
+	activeCamera->CameraMove(deltaTime);
+
 	if (isPong) {
 		Pong::getInstance()->UpdateInterval(deltaTime);
 	}
@@ -253,14 +229,6 @@ void Game::MessageHandler()
 	if (msg.message == WM_QUIT) {
 		isExitRequested = true;
 	}
-}
-
-void Game::KeyInputHadnler(std::unordered_set<Keys>* keys)
-{
-	auto curTime = std::chrono::steady_clock::now();
-	float deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(curTime - PrevTime).count() / 1000000.0f;
-
-	activeCamera->CameraMove(keys, deltaTime);
 }
 
 void Game::MouseInputHandler(Vector2 mouseInput)
@@ -289,41 +257,13 @@ void Game::PongGame()
 {
 	isPong = true;
 	Pong* pongGame = Pong::getInstance();
-
 	pongGame->Initialize();
-
-	ID3D11DepthStencilState* depthStencilState;
-
-	if (isPong) {
-		D3D11_DEPTH_STENCIL_DESC depthDisabledDesc = {};
-
-		depthDisabledDesc.DepthEnable = FALSE;
-		depthDisabledDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
-
-		depthDisabledDesc.StencilEnable = FALSE;
-
-		device->CreateDepthStencilState(&depthDisabledDesc, &depthStencilState);
-		std::cout << "dfgdfg";
-	}
-	else {
-		D3D11_DEPTH_STENCIL_DESC depthStencilDesc = {};
-
-		depthStencilDesc.DepthEnable = TRUE;
-		depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-		depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
-
-		depthStencilDesc.StencilEnable = FALSE;
-
-		device->CreateDepthStencilState(&depthStencilDesc, &depthStencilState);
-	};
-
-	context->OMSetDepthStencilState(depthStencilState, 1);
 }
 
 void Game::PlanetSystemView()
 {
 	isPlanetSystem = true;
 	PlanetSystem* planetGame = PlanetSystem::getInstance();
-
+	CreateDepthBuffer();
 	planetGame->Initialize();
 }

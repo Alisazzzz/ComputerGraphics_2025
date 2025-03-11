@@ -48,7 +48,7 @@ void OrbitCamera::CameraRotate(Vector2 mouseInput)
 	orbit = Vector3::Transform(camPosition, rotationMatrix);
 }
 
-void OrbitCamera::CameraMove(std::unordered_set<Keys>* keys, float deltaTime) {}
+void OrbitCamera::CameraMove(float deltaTime) {}
 
 void OrbitCamera::Update()
 {

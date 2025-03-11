@@ -23,9 +23,6 @@
 #include "FPSCamera.h"
 #include "OrbitCamera.h"
 
-#include <unordered_set>
-#include "Keys.h"
-
 class DisplayWin32;
 
 class Game
@@ -79,6 +76,7 @@ public:
 
 	void Initialize(int screenWidthInput, int screenHeightInput);
 	void CreateBackBuffer();
+	void CreateDepthBuffer();
 
 	void Draw();
 	void Update();
@@ -90,7 +88,6 @@ public:
 	void UpdateInterval();
 	void MessageHandler();
 
-	void KeyInputHadnler(std::unordered_set<Keys>* keys);
 	void MouseInputHandler(Vector2 mouseInput);
 
 	void Run();

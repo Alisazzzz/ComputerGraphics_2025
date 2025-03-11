@@ -39,7 +39,7 @@ public:
 	void Initialize() {};
 
 	virtual void CameraRotate(Vector2 mouseInput) {};
-	virtual void CameraMove(std::unordered_set<Keys>* keys, float deltaTime) {};
+	virtual void CameraMove(float deltaTime) {};
 
 	virtual void Draw() {};
 	virtual void Update() {};

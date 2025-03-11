@@ -224,16 +224,14 @@ void Pong::CheckCollisions()
             ballVelocity.y = relativeIntersectY;
             ballSpeed += ballSpeedGrow;
 
-            /*
             rightPaddle->mesh->transforms.move = Matrix::CreateTranslation(0.0f, 0.0f, 0.0f);
             rightPaddle->mesh->Update();
-            rightPaddle->mesh->transforms.scale = Matrix::CreateScale(1.0f, 1.0f - 0.01f * rightCounts, 1.0f);
+            rightPaddle->mesh->transforms.scale = Matrix::CreateScale(1.0f, 1.0f - 0.1f * rightCounts, 1.0f);
             rightPaddle->mesh->Update();
             rightPaddle->mesh->transforms.move = Matrix::CreateTranslation(rightPaddle->position);
             rightCounts += 1;
 
-            updateCollision(rightPaddle->mesh->points, &(rightPaddle->collision), false, Vector3(1.0f, 1.0f - 0.01f * rightCounts, 1.0f));
-            */
+            updateCollision(rightPaddle->mesh->points, &(rightPaddle->collision), false, Vector3(1.0f, 1.0f - 0.1f * rightCounts, 1.0f));
         }
     }
 
@@ -293,7 +291,8 @@ void Pong::Update()
 
     rightPaddle->mesh->transforms.move = Matrix::CreateTranslation(rightPaddle->position);
     rightPaddle->collision.Center = rightPaddle->position;
-
+    
+    /*
     rightPaddle->mesh->transforms.move = Matrix::CreateTranslation(0.0f, 0.0f, 0.0f);
     rightPaddle->mesh->Update();
     rightPaddle->mesh->transforms.scale = Matrix::CreateScale(1.0f + netUpdateTime * 0.2f, 1.0f + netUpdateTime * 0.2f, 1.0f);
@@ -309,6 +308,7 @@ void Pong::Update()
     leftPaddle->mesh->transforms.move = Matrix::CreateTranslation(leftPaddle->position);
     updateCollision(leftPaddle->mesh->points, &(leftPaddle->collision), 
         false, Vector3(1.0f + netUpdateTime * 0.2f, 1.0f + netUpdateTime * 0.2f, 1.0f));
+     */
 }
 
 void Pong::UpdateInterval(float deltaTime)

@@ -9,18 +9,20 @@
 #include <SimpleMath.h>
 
 #include "TriangleComponent.h"
+#include "LinelistComponent.h"
 #include "MeshGenerator.h"
 
 #include "FPSCamera.h"
 #include "OrbitCamera.h"
 
-#include <unordered_set>
-#include "Keys.h"
-
 class Game;
 
 using namespace DirectX::SimpleMath;
 
+struct CUSTOMVERTEX
+{
+	float x, y, z;
+};
 
 struct PlanetObject {
 	TriangleComponent* mesh;
@@ -53,6 +55,8 @@ private:
 	Game* game;
 
 public:
+
+	std::vector<DirectX::XMFLOAT4> lines;
 
 	PlanetSystem(const PlanetSystem& planetSystemObject) = delete;
 

@@ -112,7 +112,7 @@ void PlanetSystem::Initialize()
 	PlanetObject* earth = new PlanetObject{
 		earthMesh,
 		0.0f,
-		0.4f,
+		30.0f,
 		0.0f,
 		0.6f,
 		Vector3(4.0f, 0.0f, 0.0f),
@@ -139,7 +139,7 @@ void PlanetSystem::Initialize()
 		0.0f,
 		0.9f,
 		0.0f,
-		0.9f,
+		4.0f,
 		Vector3(0.4f, 0.0f, 0.0f),
 		Vector3(0.4f, 0.0f, 0.0f),
 		earth
@@ -288,9 +288,35 @@ void PlanetSystem::Initialize()
 	//FPS camera
 	mainFPS = new FPSCamera(game);
 	mainFPS->Initialize();
-	mainFPS->SetLookPoint(Vector3(1.0f, 0.0f, 0.0f));
+	mainFPS->SetLookPoint(Vector3(3.0f, -3.0f, 3.0f));
+	mainFPS->SetTarget(Vector3(0.0f, 0.0f, 0.0f));
 	game->activeCamera = mainFPS;
 	game->components.push_back(mainFPS);
+
+	//Array of lines
+
+	for (int i = 0; i < 100; i++) {
+		lines.push_back(Vector4(-100.0f, 0.0f, -50.0f + i, 1.0f));
+		lines.push_back(Vector4(0.5f, 0.5f, 0.5f, 1.0f));
+		lines.push_back(Vector4(100.0f, 0.0f, -50.0f + i, 1.0f));
+		lines.push_back(Vector4(0.5f, 0.5f, 0.5f, 1.0f));
+	}
+
+	for (int i = 0; i < 100; i++) {
+		lines.push_back(Vector4(-50.0f + i, 0.0f, -100.0f, 1.0f));
+		lines.push_back(Vector4(0.5f, 0.5f, 0.5f, 1.0f));
+		lines.push_back(Vector4(-50.0f + i, 0.0f, 100.0f, 1.0f));
+		lines.push_back(Vector4(0.5f, 0.5f, 0.5f, 1.0f));
+	}
+
+	LinelistComponent* linesTriangle1 = new LinelistComponent(game);
+	linesTriangle1->Initialize(L"./Shaders/MyVeryFirstShader.hlsl", lines, strides, offsets, true);
+	game->components.push_back(linesTriangle1);
+
+	LinelistComponent* linesTriangle2 = new LinelistComponent(game);
+	linesTriangle2->Initialize(L"./Shaders/MyVeryFirstShader.hlsl", lines, strides, offsets, true);
+	linesTriangle2->transforms.rotate = Matrix::CreateRotationY(DirectX::XM_PIDIV2);
+	game->components.push_back(linesTriangle2);
 }
 
 void PlanetSystem::ChangeCamera(int cameraID)
@@ -312,9 +338,6 @@ void PlanetSystem::UpdateInterval(float deltaTime)
 
 		object->spinAngle += object->spinSpeed * deltaTime;
 		object->mesh->transforms.rotate = Matrix::CreateRotationY(object->spinAngle);
-		object->mesh->Update();
-
-		object->mesh->transforms.move = Matrix::CreateTranslation(object->position);
 		object->mesh->Update();
 
 		object->orbitalAngle += object->orbitalSpeed * deltaTime;

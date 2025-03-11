@@ -73,6 +73,7 @@ void InputDevice::OnMouseMove(RawMouseEventArgs args)
 
 	MousePosition = Vector2(p.x, p.y);
 	MouseOffset = Vector2(args.X, args.Y);
+
 	MouseWheelDelta = args.WheelDelta;
 
 	const MouseMoveEventArgs moveArgs = { MousePosition, MouseOffset, MouseWheelDelta };
@@ -94,13 +95,11 @@ void InputDevice::AddPressedKey(Keys key)
 	//	return;
 	//}
 	keys->insert(key);
-	Game::getInstance()->KeyInputHadnler(keys);
 }
 
 void InputDevice::RemovePressedKey(Keys key)
 {
 	keys->erase(key);
-	Game::getInstance()->KeyInputHadnler(keys);
 }
 
 bool InputDevice::IsKeyDown(Keys key)
