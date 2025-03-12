@@ -16,8 +16,9 @@
 
 #include "GameComponent.h"
 #include "ConstantBufferConfig.h";
+#include "Vertex.h";
 
-class LinelistComponent : public GameComponent
+class TexturedTriangle : public GameComponent
 {
 private:
 	ID3D11InputLayout* layout;
@@ -29,6 +30,7 @@ private:
 	ID3D11PixelShader* pixelShader;
 	ID3DBlob* pixelByteCode;
 
+	ID3D11Buffer* ib;
 	ID3D11RasterizerState* rastState;
 
 	ID3D11Buffer* constBuffer;
@@ -36,17 +38,20 @@ private:
 	std::vector<UINT> strides;
 	std::vector<UINT> offsets;
 
+	std::vector<int> indeces;
+
 	bool is2D;
 
-public:
-	std::vector<DirectX::XMFLOAT4> points;
+	ID3D11ShaderResourceView* textureView;
+	ID3D11SamplerState* samplerState;
 
-	float isLine;
+public:
+	std::vector<Vertex> points;
 
 	Transformations transforms;
 	ConstData constData;
 
-	LinelistComponent(Game* gameInput) : GameComponent(gameInput)
+	TexturedTriangle(Game* gameInput) : GameComponent(gameInput)
 	{
 		layout = nullptr;
 
@@ -57,13 +62,14 @@ public:
 		pixelShader = nullptr;
 		pixelByteCode = nullptr;
 
+		ib = nullptr;
 		rastState = nullptr;
 
 		constBuffer = nullptr;
 	};
 
 	void Initialize(LPCWSTR shaderSource,
-		std::vector<DirectX::XMFLOAT4> pointsInput,
+		std::vector<Vertex> pointsInput, std::vector<int> indecesInput,
 		std::vector<UINT> stridesInput, std::vector<UINT> offsetsInput,
 		bool is2DInput);
 
@@ -71,6 +77,5 @@ public:
 
 	void Update();
 	void DestroyResources();
-
 };
 

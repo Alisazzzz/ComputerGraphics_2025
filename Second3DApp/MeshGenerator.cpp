@@ -2,6 +2,35 @@
 
 MeshGenerator* MeshGenerator::generatorInstance = nullptr;
 
+TexturedMesh MeshGenerator::ProcessMesh(aiMesh* mesh, const aiScene* scene)
+{
+	std::vector<Vertex> points;
+	std::vector<int> indeces;
+
+	for (UINT i = 0; i < mesh->mNumVertices; i++) {
+		DirectX::XMFLOAT4 point;
+		point.x = mesh->mVertices[i].x;
+		point.y = mesh->mVertices[i].y;
+		point.z = mesh->mVertices[i].z;
+		point.w = 1.0f;
+
+		const aiVector3D* pTexCoord = &(mesh->mTextureCoords[0][i]);
+		DirectX::XMFLOAT2 texCor = DirectX::XMFLOAT2(pTexCoord->x, pTexCoord->y);
+
+		Vertex vertex = { point, texCor };
+		points.push_back(vertex);
+	}
+
+	for (UINT i = 0; i < mesh->mNumFaces; i++) {
+		aiFace face = mesh->mFaces[i];
+		for (UINT j = 0; j < face.mNumIndices; j++)
+			indeces.push_back(face.mIndices[j]);
+	}
+
+	TexturedMesh result = { points, indeces };
+	return result;
+}
+
 Mesh MeshGenerator::getSquare(DirectX::XMFLOAT4 color)
 {
 	std::vector<DirectX::XMFLOAT4> points = {
@@ -145,5 +174,25 @@ Mesh MeshGenerator::getSphere(float radius, int latitudeBands, int longitudeBand
 
 	Mesh result = { points, indices };
 	return result;
+}
+
+std::vector<TexturedMesh> MeshGenerator::getFromFile(const std::string& filepath)
+{
+	Assimp::Importer importer;
+
+	std::vector<TexturedMesh> meshes;
+
+	const aiScene* scene = importer.ReadFile(filepath, aiProcess_Triangulate | aiProcess_ConvertToLeftHanded);
+	if (scene == nullptr) {
+		return meshes;
+	}
+
+	aiNode* node = scene->mRootNode;
+	for (UINT i = 0; i < scene->mNumMeshes; i++) {
+		aiMesh* mesh = scene->mMeshes[i];
+		meshes.push_back(ProcessMesh(mesh, scene));
+	}
+
+	return meshes;
 }
 

@@ -2,6 +2,7 @@
 
 #include "DisplayWin32.h"
 #include "TriangleComponent.h"
+#include "TexturedTriangle.h"
 #include "MeshGenerator.h"
 
 #include "Pong.h"
@@ -64,6 +65,17 @@ void Game::Initialize(int screenWidthInput, int screenHeightInput)
 	depthStencilBuffer = nullptr;
 	depthStencilView = nullptr;
 
+	std::vector<UINT> strides = { 32 };
+	std::vector<UINT> offsets = { 0 };
+
+	std::vector<TexturedMesh> sword = MeshGenerator::getInstance()->getFromFile("./Models/SlothSword.obj");
+	for (TexturedMesh mesh : sword) {
+		TexturedTriangle* swordPart = new TexturedTriangle(getInstance());
+		swordPart->Initialize(L"./Shaders/MySecondShader.hlsl", mesh.points, mesh.indeces, strides, offsets, false);
+		swordPart->transforms.scale = Matrix::CreateScale(Vector3(0.5f, 0.5f, 0.5f));
+		swordPart->transforms.rotate = Matrix::CreateRotationX(DirectX::XM_PIDIV2);
+		components.push_back(swordPart);
+	}
 }
 
 void Game::CreateBackBuffer()

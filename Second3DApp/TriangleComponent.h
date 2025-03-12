@@ -15,7 +15,7 @@
 #pragma comment(lib, "dxguid.lib")
 
 #include "GameComponent.h"
-#include "ConstBuf.h";
+#include "ConstantBufferConfig.h";
 
 class TriangleComponent : public GameComponent
 {
@@ -43,8 +43,6 @@ private:
 
 public:
 	std::vector<DirectX::XMFLOAT4> points;
-
-	float isLine;
 
 	Transformations transforms;
 	ConstData constData;
