@@ -21,6 +21,7 @@ struct Mesh {
 struct TexturedMesh {
 	std::vector<Vertex> points;
 	std::vector<int> indeces;
+	std::wstring texturePath;
 };
 
 class MeshGenerator

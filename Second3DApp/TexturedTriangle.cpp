@@ -3,7 +3,8 @@
 
 void TexturedTriangle::Initialize(LPCWSTR shaderSource, 
 	std::vector<Vertex> pointsInput, std::vector<int> indecesInput, 
-	std::vector<UINT> stridesInput, std::vector<UINT> offsetsInput, bool is2DInput)
+	std::vector<UINT> stridesInput, std::vector<UINT> offsetsInput, 
+	bool is2DInput, std::wstring texturePath)
 {
 	points = pointsInput;
 	indeces = indecesInput;
@@ -112,6 +113,7 @@ void TexturedTriangle::Initialize(LPCWSTR shaderSource,
 
 	res = game->device->CreateRasterizerState(&rastDesc, &rastState);
 
+	//Constant buffer
 	D3D11_BUFFER_DESC constBufferDesc = {};
 	constBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	constBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -131,6 +133,7 @@ void TexturedTriangle::Initialize(LPCWSTR shaderSource,
 	constData.transformations = transforms.scale * transforms.rotate * transforms.move;
 	constData.color = Vector4(0.0f, 0.0f, 0.0f, 0.0f);
 
+	//Texture
 	D3D11_SAMPLER_DESC samplerDesc = {};
 	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
@@ -142,6 +145,36 @@ void TexturedTriangle::Initialize(LPCWSTR shaderSource,
 
 	samplerState = nullptr;
 	game->device->CreateSamplerState(&samplerDesc, &samplerState);
+
+	DirectX::ScratchImage image;
+	res = DirectX::LoadFromWICFile(texturePath.c_str(), DirectX::WIC_FLAGS_NONE, nullptr, image);
+	const DirectX::TexMetadata& metadata = image.GetMetadata();
+
+	D3D11_TEXTURE2D_DESC textureDesc = {};
+	textureDesc.Width = static_cast<UINT>(metadata.width);
+	textureDesc.Height = static_cast<UINT>(metadata.height);
+	textureDesc.MipLevels = static_cast<UINT>(metadata.mipLevels);
+	textureDesc.ArraySize = 1;
+	textureDesc.Format = metadata.format;
+	textureDesc.SampleDesc.Count = 1;
+	textureDesc.Usage = D3D11_USAGE_DEFAULT;
+	textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+
+	ID3D11Texture2D* texture2D = nullptr;
+	D3D11_SUBRESOURCE_DATA textureData = {};
+	textureData.pSysMem = image.GetPixels();
+	textureData.SysMemPitch = static_cast<UINT>(image.GetImages()->rowPitch);
+
+	res = game->device->CreateTexture2D(&textureDesc, &textureData, &texture2D);
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	srvDesc.Format = textureDesc.Format;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = textureDesc.MipLevels;
+
+	res = game->device->CreateShaderResourceView(texture2D, &srvDesc, &textureView);
+	texture2D->Release();
+	
 }
 
 void TexturedTriangle::Draw()

@@ -27,7 +27,15 @@ TexturedMesh MeshGenerator::ProcessMesh(aiMesh* mesh, const aiScene* scene)
 			indeces.push_back(face.mIndices[j]);
 	}
 
-	TexturedMesh result = { points, indeces };
+	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+
+	std::cout << material->GetTextureCount(aiTextureType::aiTextureType_DIFFUSE) << std::endl;
+	aiString path;
+	material->GetTexture(aiTextureType::aiTextureType_DIFFUSE, 0, &path);
+	std::string filename = "./Models/Sword/" + std::string(path.C_Str());
+	std::wstring texturePath = std::wstring (filename.begin(), filename.end());
+
+	TexturedMesh result = { points, indeces, texturePath };
 	return result;
 }
 
@@ -184,6 +192,7 @@ std::vector<TexturedMesh> MeshGenerator::getFromFile(const std::string& filepath
 
 	const aiScene* scene = importer.ReadFile(filepath, aiProcess_Triangulate | aiProcess_ConvertToLeftHanded);
 	if (scene == nullptr) {
+		std::cout << importer.GetErrorString() << std::endl;
 		return meshes;
 	}
 

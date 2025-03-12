@@ -14,6 +14,8 @@
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "dxguid.lib")
 
+#include <DirectXTex.h> 
+
 #include "GameComponent.h"
 #include "ConstantBufferConfig.h";
 #include "Vertex.h";
@@ -71,7 +73,7 @@ public:
 	void Initialize(LPCWSTR shaderSource,
 		std::vector<Vertex> pointsInput, std::vector<int> indecesInput,
 		std::vector<UINT> stridesInput, std::vector<UINT> offsetsInput,
-		bool is2DInput);
+		bool is2DInput, std::wstring texturePath);
 
 	void Draw();
 
