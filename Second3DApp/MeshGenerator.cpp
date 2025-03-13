@@ -2,7 +2,7 @@
 
 MeshGenerator* MeshGenerator::generatorInstance = nullptr;
 
-TexturedMesh MeshGenerator::ProcessMesh(aiMesh* mesh, const aiScene* scene)
+TexturedMesh MeshGenerator::ProcessMesh(aiMesh* mesh, const aiScene* scene, std::string dir)
 {
 	std::vector<Vertex> points;
 	std::vector<int> indeces;
@@ -14,17 +14,24 @@ TexturedMesh MeshGenerator::ProcessMesh(aiMesh* mesh, const aiScene* scene)
 		point.z = mesh->mVertices[i].z;
 		point.w = 1.0f;
 
-		const aiVector3D* pTexCoord = &(mesh->mTextureCoords[0][i]);
-		DirectX::XMFLOAT2 texCor = DirectX::XMFLOAT2(pTexCoord->x, pTexCoord->y);
+		DirectX::XMFLOAT2 texCor = DirectX::XMFLOAT2(0.0f, 0.0f);
+		if (mesh->mTextureCoords[0] != nullptr) {
+			aiVector3D* pTexCoord = &(mesh->mTextureCoords[0][i]);
+			DirectX::XMFLOAT2 texCor = DirectX::XMFLOAT2(pTexCoord->x, pTexCoord->y);
+		};
 
 		Vertex vertex = { point, texCor };
 		points.push_back(vertex);
 	}
 
 	for (UINT i = 0; i < mesh->mNumFaces; i++) {
-		aiFace face = mesh->mFaces[i];
+		const aiFace& Face = mesh->mFaces[i];
+		indeces.push_back(Face.mIndices[0]);
+		indeces.push_back(Face.mIndices[1]);
+		indeces.push_back(Face.mIndices[2]);
+		/*aiFace face = mesh->mFaces[i];
 		for (UINT j = 0; j < face.mNumIndices; j++)
-			indeces.push_back(face.mIndices[j]);
+			indeces.push_back(face.mIndices[j]);*/
 	}
 
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
@@ -32,8 +39,9 @@ TexturedMesh MeshGenerator::ProcessMesh(aiMesh* mesh, const aiScene* scene)
 	std::cout << material->GetTextureCount(aiTextureType::aiTextureType_DIFFUSE) << std::endl;
 	aiString path;
 	material->GetTexture(aiTextureType::aiTextureType_DIFFUSE, 0, &path);
-	std::string filename = "./Models/Sword/" + std::string(path.C_Str());
+	std::string filename = dir + std::string(path.C_Str());
 	std::wstring texturePath = std::wstring (filename.begin(), filename.end());
+	std::cout << filename << std::endl;
 
 	TexturedMesh result = { points, indeces, texturePath };
 	return result;
@@ -188,9 +196,13 @@ std::vector<TexturedMesh> MeshGenerator::getFromFile(const std::string& filepath
 {
 	Assimp::Importer importer;
 
+	std::string directory = "";
+	size_t lastSlash = filepath.find_last_of("/\\");
+	directory = filepath.substr(0, lastSlash + 1);
+
 	std::vector<TexturedMesh> meshes;
 
-	const aiScene* scene = importer.ReadFile(filepath, aiProcess_Triangulate | aiProcess_ConvertToLeftHanded);
+	const aiScene* scene = importer.ReadFile(filepath, aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_GenNormals);
 	if (scene == nullptr) {
 		std::cout << importer.GetErrorString() << std::endl;
 		return meshes;
@@ -199,7 +211,7 @@ std::vector<TexturedMesh> MeshGenerator::getFromFile(const std::string& filepath
 	aiNode* node = scene->mRootNode;
 	for (UINT i = 0; i < scene->mNumMeshes; i++) {
 		aiMesh* mesh = scene->mMeshes[i];
-		meshes.push_back(ProcessMesh(mesh, scene));
+		meshes.push_back(ProcessMesh(mesh, scene, directory));
 	}
 
 	return meshes;

@@ -147,7 +147,9 @@ void TexturedTriangle::Initialize(LPCWSTR shaderSource,
 	game->device->CreateSamplerState(&samplerDesc, &samplerState);
 
 	DirectX::ScratchImage image;
+
 	res = DirectX::LoadFromWICFile(texturePath.c_str(), DirectX::WIC_FLAGS_NONE, nullptr, image);
+	
 	const DirectX::TexMetadata& metadata = image.GetMetadata();
 
 	D3D11_TEXTURE2D_DESC textureDesc = {};
@@ -173,8 +175,7 @@ void TexturedTriangle::Initialize(LPCWSTR shaderSource,
 	srvDesc.Texture2D.MipLevels = textureDesc.MipLevels;
 
 	res = game->device->CreateShaderResourceView(texture2D, &srvDesc, &textureView);
-	texture2D->Release();
-	
+	texture2D->Release();	
 }
 
 void TexturedTriangle::Draw()
@@ -218,7 +219,8 @@ void TexturedTriangle::DestroyResources()
 {
 	layout->Release();
 
-	textureView->Release();
+	if (textureView != nullptr)
+		textureView->Release();
 	samplerState->Release();
 
 	vertexShader->Release();

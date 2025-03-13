@@ -72,7 +72,7 @@ public:
 
 	Camera* activeCamera;
 	//OrbitCamera* camm;
-	//FPSCamera* camm;
+	FPSCamera* mainFPS;
 
 	void Initialize(int screenWidthInput, int screenHeightInput);
 	void CreateBackBuffer();

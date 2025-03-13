@@ -294,7 +294,6 @@ void PlanetSystem::Initialize()
 	game->components.push_back(mainFPS);
 
 	//Array of lines
-
 	for (int i = 0; i < 100; i++) {
 		lines.push_back(Vector4(-100.0f, 0.0f, -50.0f + i, 1.0f));
 		lines.push_back(Vector4(0.5f, 0.5f, 0.5f, 1.0f));

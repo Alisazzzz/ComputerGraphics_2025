@@ -25,7 +25,7 @@ int main()
 	Game* app = Game::getInstance();
 	app->Initialize(screenWidth, screenHeight);
 	//app->PongGame();
-	app->PlanetSystemView();
+	//app->PlanetSystemView();
 	app->Run();
 }
 

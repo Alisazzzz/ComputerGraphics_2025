@@ -30,7 +30,7 @@ private:
 	static MeshGenerator* generatorInstance;
 	MeshGenerator() {};
 
-	TexturedMesh ProcessMesh(aiMesh* mesh, const aiScene* scene);
+	TexturedMesh ProcessMesh(aiMesh* mesh, const aiScene* scene, std::string dir);
 
 public:
 

@@ -68,7 +68,42 @@ void Game::Initialize(int screenWidthInput, int screenHeightInput)
 	std::vector<UINT> strides = { 32 };
 	std::vector<UINT> offsets = { 0 };
 
-	std::vector<TexturedMesh> sword = MeshGenerator::getInstance()->getFromFile("./Models/Sword/SlothSword.obj");
+	mainFPS = new FPSCamera(getInstance());
+	mainFPS->Initialize();
+	mainFPS->SetLookPoint(Vector3(3.0f, -3.0f, 3.0f));
+	mainFPS->SetTarget(Vector3(0.0f, 0.0f, 0.0f));
+	activeCamera = mainFPS;
+	components.push_back(mainFPS);
+
+	std::vector<DirectX::XMFLOAT4> lines;
+
+	for (int i = 0; i < 200; i++) {
+		lines.push_back(Vector4(-150.0f, 0.0f, -50.0f + i, 1.0f));
+		lines.push_back(Vector4(0.5f, 0.5f, 0.5f, 1.0f));
+		lines.push_back(Vector4(150.0f, 0.0f, -50.0f + i, 1.0f));
+		lines.push_back(Vector4(0.5f, 0.5f, 0.5f, 1.0f));
+	}
+
+	for (int i = 0; i < 200; i++) {
+		lines.push_back(Vector4(-50.0f + i, 0.0f, -150.0f, 1.0f));
+		lines.push_back(Vector4(0.5f, 0.5f, 0.5f, 1.0f));
+		lines.push_back(Vector4(-50.0f + i, 0.0f, 150.0f, 1.0f));
+		lines.push_back(Vector4(0.5f, 0.5f, 0.5f, 1.0f));
+	}
+
+	LinelistComponent* linesTriangle1 = new LinelistComponent(getInstance());
+	linesTriangle1->Initialize(L"./Shaders/MyVeryFirstShader.hlsl", lines, strides, offsets, true);
+	components.push_back(linesTriangle1);
+
+	LinelistComponent* linesTriangle2 = new LinelistComponent(getInstance());
+	linesTriangle2->Initialize(L"./Shaders/MyVeryFirstShader.hlsl", lines, strides, offsets, true);
+	linesTriangle2->transforms.rotate = Matrix::CreateRotationY(DirectX::XM_PIDIV2);
+	components.push_back(linesTriangle2);
+
+	strides = { 24 };
+	offsets = { 0 };
+
+	std::vector<TexturedMesh> sword = MeshGenerator::getInstance()->getFromFile("./Models/Rose/Red_rose_SF.obj");
 	for (TexturedMesh mesh : sword) {
 		TexturedTriangle* swordPart = new TexturedTriangle(getInstance());
 		swordPart->Initialize(L"./Shaders/MySecondShader.hlsl", mesh.points, mesh.indeces, strides, offsets, false, mesh.texturePath);
@@ -122,7 +157,7 @@ void Game::CreateDepthBuffer()
 
 void Game::Draw()
 {
-	float color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	float color[] = { 0.3f, 0.3f, 0.3f, 1.0f };
 	context->ClearRenderTargetView(renderView, color);
 
 	context->OMSetRenderTargets(1, &renderView, depthStencilView);

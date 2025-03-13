@@ -10,12 +10,6 @@ struct PS_IN
  	float4 col : COLOR;
 };
 
-struct ConstantData
-{
-    float4 offset;
-    float4 color;
-};
-
 cbuffer ConstBuf : register(b0)
 {
     matrix transformations;
