@@ -25,7 +25,7 @@ PS_IN VSMain(VS_IN input)
 {
     PS_IN output = (PS_IN) 0;
 	
-    float4 pos = float4(input.pos.xyz, 1.0f);
+    float4 pos = float4(input.pos.xyzw);
     
     pos = mul(pos, transformations);
     pos = mul(pos, view);

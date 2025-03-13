@@ -17,7 +17,7 @@ TexturedMesh MeshGenerator::ProcessMesh(aiMesh* mesh, const aiScene* scene, std:
 		DirectX::XMFLOAT2 texCor = DirectX::XMFLOAT2(0.0f, 0.0f);
 		if (mesh->mTextureCoords[0] != nullptr) {
 			aiVector3D* pTexCoord = &(mesh->mTextureCoords[0][i]);
-			DirectX::XMFLOAT2 texCor = DirectX::XMFLOAT2(pTexCoord->x, pTexCoord->y);
+			texCor = DirectX::XMFLOAT2(pTexCoord->x, pTexCoord->y);
 		};
 
 		Vertex vertex = { point, texCor };
@@ -202,7 +202,7 @@ std::vector<TexturedMesh> MeshGenerator::getFromFile(const std::string& filepath
 
 	std::vector<TexturedMesh> meshes;
 
-	const aiScene* scene = importer.ReadFile(filepath, aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_GenNormals);
+	const aiScene* scene = importer.ReadFile(filepath, aiProcess_Triangulate | aiProcess_ConvertToLeftHanded | aiProcess_GenNormals | aiProcess_FixInfacingNormals);
 	if (scene == nullptr) {
 		std::cout << importer.GetErrorString() << std::endl;
 		return meshes;

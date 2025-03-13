@@ -65,6 +65,8 @@ void Game::Initialize(int screenWidthInput, int screenHeightInput)
 	depthStencilBuffer = nullptr;
 	depthStencilView = nullptr;
 
+	CreateDepthBuffer();
+
 	std::vector<UINT> strides = { 32 };
 	std::vector<UINT> offsets = { 0 };
 
@@ -103,7 +105,7 @@ void Game::Initialize(int screenWidthInput, int screenHeightInput)
 	strides = { 24 };
 	offsets = { 0 };
 
-	std::vector<TexturedMesh> sword = MeshGenerator::getInstance()->getFromFile("./Models/Rose/Red_rose_SF.obj");
+	std::vector<TexturedMesh> sword = MeshGenerator::getInstance()->getFromFile("./Models/SlothSword/sword.obj");
 	for (TexturedMesh mesh : sword) {
 		TexturedTriangle* swordPart = new TexturedTriangle(getInstance());
 		swordPart->Initialize(L"./Shaders/MySecondShader.hlsl", mesh.points, mesh.indeces, strides, offsets, false, mesh.texturePath);

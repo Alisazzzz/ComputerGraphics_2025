@@ -108,7 +108,7 @@ void TexturedTriangle::Initialize(LPCWSTR shaderSource,
 	if (is2D)
 		rastDesc.CullMode = D3D11_CULL_NONE;
 	else
-		rastDesc.CullMode = D3D11_CULL_BACK;
+		rastDesc.CullMode = D3D11_CULL_FRONT;
 	rastDesc.FillMode = D3D11_FILL_SOLID /*D3D11_FILL_WIREFRAME*/;
 
 	res = game->device->CreateRasterizerState(&rastDesc, &rastState);
@@ -147,10 +147,10 @@ void TexturedTriangle::Initialize(LPCWSTR shaderSource,
 	game->device->CreateSamplerState(&samplerDesc, &samplerState);
 
 	DirectX::ScratchImage image;
+	DirectX::TexMetadata metadata;
 
-	res = DirectX::LoadFromWICFile(texturePath.c_str(), DirectX::WIC_FLAGS_NONE, nullptr, image);
-	
-	const DirectX::TexMetadata& metadata = image.GetMetadata();
+	DirectX::LoadFromWICFile(texturePath.c_str(), DirectX::WIC_FLAGS_DEFAULT_SRGB, nullptr, image);
+	metadata = image.GetMetadata();
 
 	D3D11_TEXTURE2D_DESC textureDesc = {};
 	textureDesc.Width = static_cast<UINT>(metadata.width);
