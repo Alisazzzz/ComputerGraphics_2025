@@ -68,16 +68,9 @@ void Game::Initialize(int screenWidthInput, int screenHeightInput)
 
 	CreateDepthBuffer();
 
-	/*
+	
 	std::vector<UINT> strides = { 32 };
 	std::vector<UINT> offsets = { 0 };
-
-	mainFPS = new FPSCamera(getInstance());
-	mainFPS->Initialize();
-	mainFPS->SetLookPoint(Vector3(3.0f, -3.0f, 3.0f));
-	mainFPS->SetTarget(Vector3(0.0f, 0.0f, 0.0f));
-	activeCamera = mainFPS;
-	components.push_back(mainFPS);
 
 	std::vector<DirectX::XMFLOAT4> lines;
 
@@ -175,6 +168,11 @@ void Game::Update()
 		pong->Update();
 	};
 
+	if (isKatamari) {
+		Katamari* katamari = Katamari::getInstance();
+		katamari->Update();
+	}
+
 	for (GameComponent* component : components) {
 		component->Update();
 	}
@@ -256,6 +254,10 @@ void Game::UpdateInterval()
 
 	if (isPlanetSystem) {
 		PlanetSystem::getInstance()->UpdateInterval(deltaTime);
+	}
+
+	if (isKatamari) {
+		Katamari::getInstance()->UpdateInterval(deltaTime);
 	}
 
 	PrepareFrame();

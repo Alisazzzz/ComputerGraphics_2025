@@ -33,7 +33,7 @@ void OrbitCamera::SetTarget(Vector3 targetInput) { target = targetInput; }
 void OrbitCamera::SetUpAxis(Vector3 upAxisInput) { upAxis = upAxisInput; }
 
 void OrbitCamera::CameraRotate(Vector2 mouseInput)
-{
+{	
 	Vector3 camPosition = Vector3(Vector3::Distance(target, lookPoint), 0.0f, 0.0f);
 
 	cameraYaw += mouseInput.x * cameraSensitivity;

@@ -27,6 +27,7 @@
     <ClCompile Include="GameComponent.cpp" />
     <ClCompile Include="InputDevice.cpp" />
     <ClCompile Include="Katamari.cpp" />
+    <ClCompile Include="KatamariBall.cpp" />
     <ClCompile Include="LinelistComponent.cpp" />
     <ClCompile Include="MeshGenerator.cpp" />
     <ClCompile Include="MySuper3DApp.cpp" />
@@ -58,6 +59,7 @@
     <ClInclude Include="GameComponent.h" />
     <ClInclude Include="InputDevice.h" />
     <ClInclude Include="Katamari.h" />
+    <ClInclude Include="KatamariBall.h" />
     <ClInclude Include="LinelistComponent.h" />
     <ClInclude Include="MeshGenerator.h" />
     <ClInclude Include="OrbitCamera.h" />

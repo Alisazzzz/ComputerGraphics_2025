@@ -3,6 +3,8 @@
 
 Katamari* Katamari::katamariInstance = nullptr;
 
+using namespace std;
+
 void Katamari::Initialize()
 {
 	game = Game::getInstance();
@@ -10,60 +12,60 @@ void Katamari::Initialize()
 	std::vector<UINT> strides = { 32 };
 	std::vector<UINT> offsets = { 0 };
 
-	mainFPS = new FPSCamera(game);
-	mainFPS->Initialize();
-	game->activeCamera = mainFPS;
-	game->components.push_back(mainFPS);
+	RandomObjectGeneration();
 
-	std::vector<DirectX::XMFLOAT4> lines;
-
-	for (int i = 0; i < 200; i++) {
-		lines.push_back(Vector4(-150.0f, 0.0f, -50.0f + i, 1.0f));
-		lines.push_back(Vector4(0.5f, 0.5f, 0.5f, 1.0f));
-		lines.push_back(Vector4(150.0f, 0.0f, -50.0f + i, 1.0f));
-		lines.push_back(Vector4(0.5f, 0.5f, 0.5f, 1.0f));
-	}
-
-	for (int i = 0; i < 200; i++) {
-		lines.push_back(Vector4(-50.0f + i, 0.0f, -150.0f, 1.0f));
-		lines.push_back(Vector4(0.5f, 0.5f, 0.5f, 1.0f));
-		lines.push_back(Vector4(-50.0f + i, 0.0f, 150.0f, 1.0f));
-		lines.push_back(Vector4(0.5f, 0.5f, 0.5f, 1.0f));
-	}
-
-	LinelistComponent* linesTriangle1 = new LinelistComponent(game);
-	linesTriangle1->Initialize(L"./Shaders/MyVeryFirstShader.hlsl", lines, strides, offsets, true);
-	game->components.push_back(linesTriangle1);
-
-	LinelistComponent* linesTriangle2 = new LinelistComponent(game);
-	linesTriangle2->Initialize(L"./Shaders/MyVeryFirstShader.hlsl", lines, strides, offsets, true);
-	linesTriangle2->transforms.rotate = Matrix::CreateRotationY(DirectX::XM_PIDIV2);
-	game->components.push_back(linesTriangle2);
-
-	strides = { 24 };
-	offsets = { 0 };
-
-	std::vector<TexturedMesh> sword = MeshGenerator::getInstance()->getFromFile("./Models/SlothSword/sword.obj");
-	for (TexturedMesh mesh : sword) {
-		TexturedTriangle* swordPart = new TexturedTriangle(game);
-		swordPart->Initialize(L"./Shaders/MySecondShader.hlsl", mesh.points, mesh.indeces, strides, offsets, false, mesh.texturePath);
-		//swordPart->transforms.scale = Matrix::CreateScale(Vector3(0.5f, 0.5f, 0.5f));
-		//swordPart->transforms.rotate = Matrix::CreateRotationX(DirectX::XM_PIDIV2);
-		game->components.push_back(swordPart);
-	}
+	ball = new KatamariBall(game);
+	mainOrbit = ball->getCamera();
 }
 
 void Katamari::RandomObjectGeneration()
 {
-	std::srand(std::time(0));
-	std::vector<LPCWSTR> models;
-	models.push_back(L"./Models/Rose/Red_rose_SF.obj");
-	models.push_back(L"./Models/SlothSword/sword.obj");
+	random_device rd;
+	mt19937 gen(rd());
 
-	for (int)
+	uniform_real_distribution<> distX(ldMapCorner.x, ruMapCorner.x);
+	uniform_real_distribution<> distZ(ldMapCorner.z, ruMapCorner.z);
+	uniform_real_distribution<> rotY(0, DirectX::XM_2PI);
+
+	vector<LPCSTR> models;
+	models.push_back("./Models/Rose/Red_rose_SF.obj");
+	//models.push_back("./Models/SlothSword/sword.obj");
+
+	uniform_int_distribution<> modelDist(0, models.size()-1);
+
+	std::vector<UINT> strides = { 24 };
+	std::vector<UINT> offsets = { 0 };
+
+	for (int i = 0; i < objectsCount; i++) {
+		Vector3 position = Vector3(distX(gen), 0.0f, distZ(gen));
+		float rotationY = rotY(gen);
+
+		std::vector<TexturedMesh> meshes = MeshGenerator::getInstance()->getFromFile(models.at(modelDist(gen)));
+		std::vector<TexturedTriangle*> modelParts;
+
+		for (TexturedMesh mesh : meshes) {
+			TexturedTriangle* modelPart = new TexturedTriangle(game);
+			modelPart->Initialize(L"./Shaders/MySecondShader.hlsl", mesh.points, mesh.indeces, strides, offsets, false, mesh.texturePath);
+			modelPart->transforms.rotate = Matrix::CreateFromYawPitchRoll(Vector3(DirectX::XM_PIDIV2, rotationY, DirectX::XM_PIDIV2));
+			modelPart->transforms.move = Matrix::CreateTranslation(position);
+			game->components.push_back(modelPart);
+			modelParts.push_back(modelPart);
+		}
+
+		Pickable* object = new Pickable{
+			modelParts,
+		};
+
+		pickables.push_back(object);
+	}
 }
 
-void Katamari::UpdateInterval()
+void Katamari::Update()
 {
+	ball->Update();
+}
 
+void Katamari::UpdateInterval(float deltaTime)
+{
+	ball->UpdateInterval(deltaTime);
 }
