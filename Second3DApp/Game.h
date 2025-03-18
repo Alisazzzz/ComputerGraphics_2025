@@ -8,6 +8,9 @@
 #include <directxmath.h>
 #include <chrono>
 #include <vector>
+#include <mutex>
+
+#include <SimpleMath.h>
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")
@@ -16,13 +19,23 @@
 
 #include "GameComponent.h"
 #include "InputDevice.h"
+#include "Camera.h"
+#include "FPSCamera.h"
+#include "OrbitCamera.h"
 
 class DisplayWin32;
 
 class Game
 {
-public: 
-	   
+private:
+	static Game* gameInstance;
+	Game() {};
+
+public:
+
+	bool isPong = false;
+	bool isPlanetSystem = false;
+
 	DisplayWin32* window;
 	std::vector<GameComponent*> components;
 	InputDevice* inputDevice;
@@ -41,31 +54,45 @@ public:
 	Microsoft::WRL::ComPtr<ID3D11Device> device;
 	IDXGISwapChain* swapChain;
 
+	ID3D11Texture2D* depthStencilBuffer;
+	ID3D11DepthStencilView* depthStencilView;
+
 	float totalTime = 0;
 	unsigned int frameCount = 0;
 	std::chrono::time_point<std::chrono::steady_clock> PrevTime;
 
-	Game(int screenWidthInput, int screenHeightInput) 
-	{
-		screenWidth = screenWidthInput;
-		screenHeight = screenHeightInput;
-	};
+	Game(const Game& gameObject) = delete;
 
-	static Game& getInstance() {
-		static Game game(800, 800);
-		return game;
+	static Game* getInstance() {
+		if (gameInstance == nullptr) {
+			gameInstance = new Game();
+		}
+		return gameInstance;
 	}
 
-	void Initialize();
+	Camera* activeCamera;
+	//OrbitCamera* camm;
+	FPSCamera* mainFPS;
+
+	void Initialize(int screenWidthInput, int screenHeightInput);
 	void CreateBackBuffer();
+	void CreateDepthBuffer();
 
 	void Draw();
+	void Update();
 	void EndFrame();
 	int Exit();
 
 	void PrepareFrame();
 
-	void Update();
+	void UpdateInterval();
 	void MessageHandler();
+
+	void MouseInputHandler(Vector2 mouseInput);
+
 	void Run();
+	void Resize();
+
+	void PongGame();
+	void PlanetSystemView();
 };
