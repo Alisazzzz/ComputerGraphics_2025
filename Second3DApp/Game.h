@@ -35,6 +35,7 @@ public:
 
 	bool isPong = false;
 	bool isPlanetSystem = false;
+	bool isKatamari = false;
 
 	DisplayWin32* window;
 	std::vector<GameComponent*> components;
@@ -95,4 +96,5 @@ public:
 
 	void PongGame();
 	void PlanetSystemView();
+	void KatamariGame();
 };

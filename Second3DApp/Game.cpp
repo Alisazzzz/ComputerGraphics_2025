@@ -7,6 +7,7 @@
 
 #include "Pong.h"
 #include "PlanetSystem.h"
+#include "Katamari.h"
 
 Game* Game::gameInstance = nullptr;
 
@@ -67,6 +68,7 @@ void Game::Initialize(int screenWidthInput, int screenHeightInput)
 
 	CreateDepthBuffer();
 
+	/*
 	std::vector<UINT> strides = { 32 };
 	std::vector<UINT> offsets = { 0 };
 
@@ -113,6 +115,7 @@ void Game::Initialize(int screenWidthInput, int screenHeightInput)
 		//swordPart->transforms.rotate = Matrix::CreateRotationX(DirectX::XM_PIDIV2);
 		components.push_back(swordPart);
 	}
+	*/
 }
 
 void Game::CreateBackBuffer()
@@ -315,4 +318,12 @@ void Game::PlanetSystemView()
 	PlanetSystem* planetGame = PlanetSystem::getInstance();
 	CreateDepthBuffer();
 	planetGame->Initialize();
+}
+
+void Game::KatamariGame()
+{
+	isKatamari = true;
+	Katamari* katamariGame = Katamari::getInstance();
+	CreateDepthBuffer();
+	katamariGame->Initialize();
 }

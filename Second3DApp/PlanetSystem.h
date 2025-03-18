@@ -19,10 +19,6 @@ class Game;
 
 using namespace DirectX::SimpleMath;
 
-struct CUSTOMVERTEX
-{
-	float x, y, z;
-};
 
 struct PlanetObject {
 	TriangleComponent* mesh;

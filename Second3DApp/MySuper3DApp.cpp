@@ -26,6 +26,7 @@ int main()
 	app->Initialize(screenWidth, screenHeight);
 	//app->PongGame();
 	//app->PlanetSystemView();
+	app->KatamariGame();
 	app->Run();
 }
 
