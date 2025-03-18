@@ -21,8 +21,8 @@ class DisplayWin32;
 
 class Game
 {
-public:
-
+public: 
+	   
 	DisplayWin32* window;
 	std::vector<GameComponent*> components;
 	InputDevice* inputDevice;
