@@ -20,11 +20,13 @@
 
 int main()
 {
-	int screenWidth = 800;
-	int screenHeight = 800;
-	Game app = Game(screenWidth, screenHeight);
-	app.Initialize();
-	app.Run();
+	int screenWidth = 2000;
+	int screenHeight = 1300;
+	Game* app = Game::getInstance();
+	app->Initialize(screenWidth, screenHeight);
+	//app->PongGame();
+	//app->PlanetSystemView();
+	app->Run();
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu

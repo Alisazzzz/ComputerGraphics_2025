@@ -2,7 +2,9 @@
 
 #include <iostream>
 #include <SimpleMath.h>
+using namespace DirectX::SimpleMath;
 
+#include "DisplayWin32.h"
 #include "Game.h"
 
 InputDevice::InputDevice(Game* inGame) : game(inGame)
@@ -69,8 +71,9 @@ void InputDevice::OnMouseMove(RawMouseEventArgs args)
 	GetCursorPos(&p);
 	ScreenToClient(game->window->hWnd, &p);
 
-	MousePosition = DirectX::SimpleMath::Vector2::Vector2(p.x, p.y);
-	MouseOffset = DirectX::SimpleMath::Vector2::Vector2(args.X, args.Y);
+	MousePosition = Vector2(p.x, p.y);
+	MouseOffset = Vector2(args.X, args.Y);
+
 	MouseWheelDelta = args.WheelDelta;
 
 	const MouseMoveEventArgs moveArgs = { MousePosition, MouseOffset, MouseWheelDelta };
@@ -83,6 +86,7 @@ void InputDevice::OnMouseMove(RawMouseEventArgs args)
 	//	MouseWheelDelta);
 
 	MouseMove.Broadcast(moveArgs);
+	Game::getInstance()->MouseInputHandler(MouseOffset);
 }
 
 void InputDevice::AddPressedKey(Keys key)

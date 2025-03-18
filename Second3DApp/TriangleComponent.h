@@ -15,6 +15,7 @@
 #pragma comment(lib, "dxguid.lib")
 
 #include "GameComponent.h"
+#include "ConstantBufferConfig.h";
 
 class TriangleComponent : public GameComponent
 {
@@ -31,13 +32,21 @@ private:
 	ID3D11Buffer* ib;
 	ID3D11RasterizerState* rastState;
 
-	std::vector<DirectX::XMFLOAT4> points;
-	std::vector<int> indeces;
+	ID3D11Buffer* constBuffer;
 
 	std::vector<UINT> strides;
 	std::vector<UINT> offsets;
 
+	std::vector<int> indeces;
+
+	bool is2D;
+
 public:
+	std::vector<DirectX::XMFLOAT4> points;
+
+	Transformations transforms;
+	ConstData constData;
+
 	TriangleComponent(Game* gameInput) : GameComponent(gameInput) 
 	{
 		layout = nullptr;
@@ -51,15 +60,18 @@ public:
 
 		ib = nullptr;
 		rastState = nullptr;
+
+		constBuffer = nullptr;
 	};
 
 	void Initialize(LPCWSTR shaderSource, 
 		std::vector<DirectX::XMFLOAT4> pointsInput, std::vector<int> indecesInput,
-		std::vector<UINT> stridesInput, std::vector<UINT> offsetsInput);
+		std::vector<UINT> stridesInput, std::vector<UINT> offsetsInput,
+		bool is2DInput);
 
 	void Draw();
-	void Update();
 
+	void Update();
 	void DestroyResources();
 };
 

@@ -1,15 +1,18 @@
 #include "TriangleComponent.h"
 #include "Game.h"
 
-void TriangleComponent::Initialize(LPCWSTR shaderSource, 
-	std::vector<DirectX::XMFLOAT4> pointsInput, std::vector<int> indecesInput,
-	std::vector<UINT> stridesInput, std::vector<UINT> offsetsInput)
+void TriangleComponent::Initialize(LPCWSTR shaderSource,
+	std::vector<DirectX::XMFLOAT4> pointsInput,
+	std::vector<int> indecesInput,
+	std::vector<UINT> stridesInput, std::vector<UINT> offsetsInput, bool is2DInput)
 {
 	points = pointsInput;
 	indeces = indecesInput;
 
 	strides = stridesInput;
 	offsets = offsetsInput;
+
+	is2D = is2DInput;
 
 	ID3DBlob* errorVertexCode = nullptr;
 	HRESULT res = D3DCompileFromFile(shaderSource,
@@ -102,10 +105,33 @@ void TriangleComponent::Initialize(LPCWSTR shaderSource,
 	game->device->CreateBuffer(&indexBufDesc, &indexData, &ib);
 
 	CD3D11_RASTERIZER_DESC rastDesc = {};
-	rastDesc.CullMode = D3D11_CULL_NONE;
-	rastDesc.FillMode = D3D11_FILL_SOLID;
+	if (is2D)
+		rastDesc.CullMode = D3D11_CULL_NONE;
+	else
+		rastDesc.CullMode = D3D11_CULL_BACK;
+	rastDesc.FillMode =  D3D11_FILL_SOLID /*D3D11_FILL_WIREFRAME*/;
 
 	res = game->device->CreateRasterizerState(&rastDesc, &rastState);
+
+	D3D11_BUFFER_DESC constBufferDesc = {};
+	constBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	constBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	constBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	constBufferDesc.MiscFlags = 0;
+	constBufferDesc.StructureByteStride = 0;
+	constBufferDesc.ByteWidth = sizeof(ConstData);
+
+	game->device->CreateBuffer(&constBufferDesc, nullptr, &constBuffer);
+
+	transforms = {};
+	transforms.move = Matrix::CreateTranslation(0.0f, 0.0f, 0.0f);
+	transforms.rotate = Matrix::CreateFromYawPitchRoll(0.0f, 0.0f, 0.0f);
+	transforms.scale = Matrix::CreateScale(1.0f, 1.0f, 1.0f);
+
+	constData = {};
+	constData.transformations = transforms.scale * transforms.rotate * transforms.move;
+	constData.color = Vector4(0.0f, 0.0f, 0.0f, 0.0f);
+
 }
 
 void TriangleComponent::Draw()
@@ -115,14 +141,31 @@ void TriangleComponent::Draw()
 	game->context->IASetInputLayout(layout);
 	game->context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	game->context->IASetIndexBuffer(ib, DXGI_FORMAT_R32_UINT, 0);
+
+	game->context->VSSetConstantBuffers(0, 1, &constBuffer);
+
 	game->context->IASetVertexBuffers(0, 1, &vb, strides.data(), offsets.data());
 	game->context->VSSetShader(vertexShader, nullptr, 0);
 	game->context->PSSetShader(pixelShader, nullptr, 0);
+
 	game->context->DrawIndexed(indeces.size(), 0, 0);
 }
 
 void TriangleComponent::Update()
 {
+	constData.transformations = transforms.scale * transforms.rotate * transforms.move;
+	constData.transformations = constData.transformations.Transpose();
+
+	constData.view = game->activeCamera->cameraInfo.view;
+	constData.view = constData.view.Transpose();
+
+	constData.projection = game->activeCamera->cameraInfo.projection;
+	constData.projection = constData.projection.Transpose();
+
+	D3D11_MAPPED_SUBRESOURCE res = {};
+	game->context->Map(constBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &res);
+	memcpy(res.pData, &constData, sizeof(ConstData));
+	game->context->Unmap(constBuffer, 0);
 }
 
 void TriangleComponent::DestroyResources()

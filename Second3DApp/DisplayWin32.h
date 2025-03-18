@@ -5,6 +5,8 @@
 #include <WinUser.h>
 #include <wrl.h>
 
+class Game;
+
 class DisplayWin32
 {
 public:

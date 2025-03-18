@@ -1,24 +1,37 @@
 #include "DisplayWin32.h"
 #include "Game.h"
+#include "Pong.h"
 
 LRESULT DisplayWin32::WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 {
-	Game game = Game::getInstance();
+
+	Game* game = Game::getInstance();
 
 	switch (umessage)
 	{
 		case WM_KEYDOWN:
 		{
 			// If a key is pressed send it to the input object so it can record that state.
-			std::cout << "Key: " << static_cast<unsigned int>(wparam) << std::endl;
+			// std::cout << "Key: " << static_cast<unsigned int>(wparam) << std::endl;
 
-			if (static_cast<unsigned int>(wparam) == 27) PostQuitMessage(0);
-			return 0;
+			if (game->isPong) {
+				if (wparam < 256) Pong::getInstance()->keys[wparam] = true;
+			}
+
+			if (static_cast<unsigned int>(wparam) == 27) {
+				PostQuitMessage(0);
+				return 0;
+			}
+			break;
 		}
-		default:
+
+		case WM_KEYUP:
 		{
-			return DefWindowProc(hwnd, umessage, wparam, lparam);
+			if (game->isPong) {
+				if (wparam < 256) Pong::getInstance()->keys[wparam] = false;
+			}
 		}
+
 		case WM_INPUT:
 		{
 			UINT dwSize = 0;
@@ -43,7 +56,7 @@ LRESULT DisplayWin32::WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lp
 				//	raw->data.keyboard.Message,
 				//	raw->data.keyboard.VKey);
 
-				game.inputDevice->OnKeyDown({
+				game->inputDevice->OnKeyDown({
 					raw->data.keyboard.MakeCode,
 					raw->data.keyboard.Flags,
 					raw->data.keyboard.VKey,
@@ -53,7 +66,7 @@ LRESULT DisplayWin32::WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lp
 			else if (raw->header.dwType == RIM_TYPEMOUSE)
 			{
 				//printf(" Mouse: X=%04d Y:%04d \n", raw->data.mouse.lLastX, raw->data.mouse.lLastY);
-				game.inputDevice->OnMouseMove({
+				game->inputDevice->OnMouseMove({
 					raw->data.mouse.usFlags,
 					raw->data.mouse.usButtonFlags,
 					static_cast<int>(raw->data.mouse.ulExtraInformation),
@@ -65,6 +78,11 @@ LRESULT DisplayWin32::WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lp
 			}
 
 			delete[] lpb;
+			return DefWindowProc(hwnd, umessage, wparam, lparam);
+		}
+
+		default:
+		{
 			return DefWindowProc(hwnd, umessage, wparam, lparam);
 		}
 	}

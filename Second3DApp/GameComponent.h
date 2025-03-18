@@ -7,6 +7,9 @@
 #include <directxmath.h>
 #include <chrono>
 
+#include <SimpleMath.h>
+using namespace DirectX::SimpleMath;
+
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3dcompiler.lib")
