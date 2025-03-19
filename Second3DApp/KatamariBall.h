@@ -14,6 +14,7 @@
 #include "OrbitCamera.h"
 
 class Game;
+class Katamari;
 
 using namespace DirectX::SimpleMath;
 
@@ -21,6 +22,7 @@ class KatamariBall
 {
 private:
 	Game* game;
+	Katamari* katamariGame;
 
 	TriangleComponent* katamariMesh;
 	DirectX::BoundingSphere collision;
@@ -33,9 +35,13 @@ private:
 	float collisionScale = 1.0f;
 
 	float speed = 4.0f;
+	float rotationSpeed = 4.0f;
+	float radius = 0.5f;
 
 public:
 	KatamariBall(Game* gameInput);
+
+	void CollisionCheck();
 
 	void UpdateInterval(float deltaTime);
 	void Update();

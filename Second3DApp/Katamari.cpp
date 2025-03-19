@@ -1,5 +1,6 @@
 #include "Katamari.h"
 #include "Game.h"
+#include "Pong.h"
 
 Katamari* Katamari::katamariInstance = nullptr;
 
@@ -52,8 +53,11 @@ void Katamari::RandomObjectGeneration()
 			modelParts.push_back(modelPart);
 		}
 
+		DirectX::BoundingBox collision = DirectX::BoundingBox(position, Vector3(0.2f, 0.2f, 0.2f));
+
 		Pickable* object = new Pickable{
 			modelParts,
+			collision,
 		};
 
 		pickables.push_back(object);

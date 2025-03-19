@@ -1,9 +1,12 @@
 #include "KatamariBall.h"
+
 #include "Game.h"
+#include "Katamari.h"
 
 KatamariBall::KatamariBall(Game* gameInput)
 {
 	game = gameInput;
+	katamariGame = Katamari::getInstance();
 
 	std::vector<UINT> strides = { 32 };
 	std::vector<UINT> offsets = { 0 };	
@@ -22,6 +25,15 @@ KatamariBall::KatamariBall(Game* gameInput)
 	game->components.push_back(mainOrbit);
 }
 
+void KatamariBall::CollisionCheck()
+{
+	for (Pickable* object : katamariGame->pickables) {
+		if (collision.Intersects(object->collision)) {
+			std::cout << "yesss" << std::endl;
+		}
+	}
+}
+
 void KatamariBall::UpdateInterval(float deltaTime)
 {
 	Vector3 forward = mainOrbit->target - mainOrbit->lookPoint;
@@ -32,10 +44,29 @@ void KatamariBall::UpdateInterval(float deltaTime)
 	right.Normalize();
 	right.y = 0.0f;
 
-	if (game->inputDevice->IsKeyDown(Keys::W)) velocity = forward * speed * deltaTime;
-	if (game->inputDevice->IsKeyDown(Keys::S)) velocity = -forward * speed * deltaTime;
-	if (game->inputDevice->IsKeyDown(Keys::A)) velocity = -right * speed * deltaTime;
-	if (game->inputDevice->IsKeyDown(Keys::D)) velocity = right * speed * deltaTime;
+	Vector3 rotationAxis(0.0f, 0.0f, 0.0f);
+	float rotationAngle = 0.0f;
+
+	if (game->inputDevice->IsKeyDown(Keys::W)) {
+		velocity = forward * speed * deltaTime;
+		rotationAxis = right;
+		rotationAngle = (speed * deltaTime) / radius;
+	}
+	if (game->inputDevice->IsKeyDown(Keys::S)) {
+		velocity = -forward * speed * deltaTime;
+		rotationAxis = -right;
+		rotationAngle = (speed * deltaTime) / radius;
+	}
+	if (game->inputDevice->IsKeyDown(Keys::A)) {
+		velocity = -right * speed * deltaTime;
+		rotationAxis = forward;
+		rotationAngle = (speed * deltaTime) / radius;
+	}
+	if (game->inputDevice->IsKeyDown(Keys::D)) {
+		velocity = right * speed * deltaTime;
+		rotationAxis = -forward;
+		rotationAngle = (speed * deltaTime) / radius;
+	}
 
 	if (!(game->inputDevice->IsKeyDown(Keys::W)) &&
 		!(game->inputDevice->IsKeyDown(Keys::S)) &&
@@ -44,12 +75,18 @@ void KatamariBall::UpdateInterval(float deltaTime)
 		velocity = Vector3(0.0f, 0.0f, 0.0f);
 
 	position += velocity;
-	// rotation += 
+	if (rotationAngle > 0.0f) {
+		rotation += rotationAxis * rotationAngle;
+	}
+
+	CollisionCheck();
 }
 
 void KatamariBall::Update()
 {
+	collision.Center = position;
 	katamariMesh->transforms.move = Matrix::CreateTranslation(position);
+	katamariMesh->transforms.rotate = Matrix::CreateFromYawPitchRoll(rotation);
 	mainOrbit->SetTarget(position);
 	mainOrbit->SetLookPoint(position + Vector3::Transform(mainOrbit->orbit, Matrix::CreateRotationY(0.0f)));
 }

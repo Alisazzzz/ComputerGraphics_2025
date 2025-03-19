@@ -25,6 +25,7 @@ using namespace DirectX::SimpleMath;
 
 struct Pickable {
 	std::vector<TexturedTriangle*> mesh;
+	DirectX::BoundingBox collision;
 };
 
 class Katamari
@@ -41,10 +42,11 @@ private:
 	Vector3 ruMapCorner = Vector3(20, 0, 20);
 	Vector3 ldMapCorner = Vector3(0, 0, 0);
 
-	std::vector<Pickable*> pickables;
 	KatamariBall* ball;
 
 public:
+	std::vector<Pickable*> pickables;
+
 	Katamari(const Katamari& katamari) = delete;
 
 	static Katamari* getInstance() {
