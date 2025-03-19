@@ -23,11 +23,6 @@ class Game;
 
 using namespace DirectX::SimpleMath;
 
-struct Pickable {
-	std::vector<TexturedTriangle*> mesh;
-	DirectX::BoundingBox collision;
-};
-
 class Katamari
 {
 private:
@@ -38,7 +33,7 @@ private:
 	FPSCamera* mainFPS;
 	Game* game;
 
-	int objectsCount = 10;
+	int objectsCount = 3;
 	Vector3 ruMapCorner = Vector3(20, 0, 20);
 	Vector3 ldMapCorner = Vector3(0, 0, 0);
 

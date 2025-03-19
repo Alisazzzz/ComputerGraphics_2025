@@ -78,6 +78,9 @@
     <ClCompile Include="TexturedTriangle.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
+    <ClCompile Include="KatamariBall.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\MyVeryFirstShader.hlsl" />
@@ -137,6 +140,12 @@
     </ClInclude>
     <ClInclude Include="TexturedTriangle.h">
       <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="KatamariBall.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Pickable.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

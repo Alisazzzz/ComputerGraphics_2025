@@ -51,6 +51,7 @@ public:
 	Mesh getCube(float size, DirectX::XMFLOAT4 color);
 	Mesh getSphere(float radius, int latitudeBands, int longitudeBands, 
 		DirectX::XMFLOAT4 color_first, DirectX::XMFLOAT4 color_second);
+	TexturedMesh getTexturedSphere(float radius, int latitudeBands, int longitudeBands);
 
 	std::vector<TexturedMesh> getFromFile(const std::string& filepath);
 };

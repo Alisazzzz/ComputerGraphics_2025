@@ -108,7 +108,7 @@ void TexturedTriangle::Initialize(LPCWSTR shaderSource,
 	if (is2D)
 		rastDesc.CullMode = D3D11_CULL_NONE;
 	else
-		rastDesc.CullMode = D3D11_CULL_FRONT;
+		rastDesc.CullMode = D3D11_CULL_BACK;
 	rastDesc.FillMode = D3D11_FILL_SOLID /*D3D11_FILL_WIREFRAME*/;
 
 	res = game->device->CreateRasterizerState(&rastDesc, &rastState);

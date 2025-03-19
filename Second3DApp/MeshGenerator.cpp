@@ -192,6 +192,58 @@ Mesh MeshGenerator::getSphere(float radius, int latitudeBands, int longitudeBand
 	return result;
 }
 
+TexturedMesh MeshGenerator::getTexturedSphere(float radius, int latitudeBands, int longitudeBands)
+{
+	std::vector<Vertex> points;
+	std::vector<int> indices;
+
+	for (int lat = 0; lat <= latitudeBands; ++lat)
+	{
+		float theta = lat * DirectX::XM_PI / latitudeBands;
+		float sinTheta = sin(theta);
+		float cosTheta = cos(theta);
+
+		for (int lon = 0; lon <= longitudeBands; ++lon)
+		{
+			float phi = lon * 2 * DirectX::XM_PI / longitudeBands;
+			float sinPhi = sin(phi);
+			float cosPhi = cos(phi);
+
+			float x = radius * cosPhi * sinTheta;
+			float y = radius * cosTheta;
+			float z = radius * sinPhi * sinTheta;
+			DirectX::XMFLOAT4 point = DirectX::XMFLOAT4(x, y, z, 1.0f);
+
+			float u = 1.0f - (float)lon / longitudeBands;
+			float v = 1.0f - (float)lat / latitudeBands;
+			DirectX::XMFLOAT2 texCor = DirectX::XMFLOAT2(u, v);
+
+			Vertex vertex = { point, texCor };
+			points.push_back(vertex);
+		}
+	}
+
+	for (int lat = 0; lat < latitudeBands; ++lat)
+	{
+		for (int lon = 0; lon < longitudeBands; ++lon)
+		{
+			int first = lat * (longitudeBands + 1) + lon;
+			int second = first + longitudeBands + 1;
+
+			indices.push_back(first);
+			indices.push_back(second);
+			indices.push_back(first + 1);
+
+			indices.push_back(second);
+			indices.push_back(second + 1);
+			indices.push_back(first + 1);
+		}
+	}
+
+	TexturedMesh result = { points, indices };
+	return result;
+}
+
 std::vector<TexturedMesh> MeshGenerator::getFromFile(const std::string& filepath)
 {
 	Assimp::Importer importer;

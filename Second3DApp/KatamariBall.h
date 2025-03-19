@@ -10,11 +10,20 @@
 
 #include "MeshGenerator.h"
 #include "TriangleComponent.h"
+#include "TexturedTriangle.h"
 
 #include "OrbitCamera.h"
 
 class Game;
 class Katamari;
+
+struct Pickable {
+	std::vector<TexturedTriangle*> mesh;
+	//DirectX::BoundingBox collision;
+	DirectX::BoundingOrientedBox collision;
+	Vector3 position;
+	Vector3 rotation;
+};
 
 using namespace DirectX::SimpleMath;
 
@@ -24,7 +33,8 @@ private:
 	Game* game;
 	Katamari* katamariGame;
 
-	TriangleComponent* katamariMesh;
+	//TriangleComponent* katamariMesh; 
+	TexturedTriangle* katamariMesh;
 	DirectX::BoundingSphere collision;
 
 	OrbitCamera* mainOrbit;
@@ -34,9 +44,13 @@ private:
 	Vector3 rotation = Vector3(0.0f, 0.0f, 0.0f);
 	float collisionScale = 1.0f;
 
-	float speed = 4.0f;
-	float rotationSpeed = 4.0f;
+	float speed = 7.0f;
+	float rotationSpeed = 7.0f;
 	float radius = 0.5f;
+
+	std::vector<Pickable*> collected;
+
+	void MoveKatamari(float deltaTime);
 
 public:
 	KatamariBall(Game* gameInput);
