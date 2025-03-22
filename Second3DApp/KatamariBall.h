@@ -23,6 +23,7 @@ struct Pickable {
 	DirectX::BoundingOrientedBox collision;
 	Vector3 position;
 	Vector3 rotation;
+	Matrix tranformations;
 };
 
 using namespace DirectX::SimpleMath;
@@ -44,7 +45,7 @@ private:
 	Vector3 rotation = Vector3(0.0f, 0.0f, 0.0f);
 	float collisionScale = 1.0f;
 
-	float speed = 7.0f;
+	float speed = 0.01f;
 	float rotationSpeed = 7.0f;
 	float radius = 0.5f;
 

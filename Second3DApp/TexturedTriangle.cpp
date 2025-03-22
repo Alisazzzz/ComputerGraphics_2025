@@ -108,7 +108,7 @@ void TexturedTriangle::Initialize(LPCWSTR shaderSource,
 	if (is2D)
 		rastDesc.CullMode = D3D11_CULL_NONE;
 	else
-		rastDesc.CullMode = D3D11_CULL_BACK;
+		rastDesc.CullMode = D3D11_CULL_FRONT;
 	rastDesc.FillMode = D3D11_FILL_SOLID /*D3D11_FILL_WIREFRAME*/;
 
 	res = game->device->CreateRasterizerState(&rastDesc, &rastState);
@@ -200,7 +200,8 @@ void TexturedTriangle::Draw()
 
 void TexturedTriangle::Update()
 {
-	constData.transformations = transforms.scale * transforms.rotate * transforms.move;
+	if (needMultip)
+		constData.transformations = transforms.scale * transforms.rotate * transforms.move;
 	constData.transformations = constData.transformations.Transpose();
 
 	constData.view = game->activeCamera->cameraInfo.view;

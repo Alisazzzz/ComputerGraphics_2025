@@ -26,23 +26,39 @@ void KatamariBall::MoveKatamari(float deltaTime)
 		moveDirection -= forward;
 		rotation.x += rotationAngle;
 	}
-	if (game->inputDevice->IsKeyDown(Keys::A)) {
-		moveDirection -= right;
-		rotation.z += rotationAngle;
-	}
-	if (game->inputDevice->IsKeyDown(Keys::D)) {
-		moveDirection += right;
-		rotation.z -= rotationAngle;
-	}
+	//if (game->inputDevice->IsKeyDown(Keys::A)) {
+	//	moveDirection -= right;
+	//	rotation.z += rotationAngle;
+	//}
+	//if (game->inputDevice->IsKeyDown(Keys::D)) {
+	//	moveDirection += right;
+	//	rotation.z -= rotationAngle;
+	//}
 	 
 	if ((moveDirection.x != 0) || (moveDirection.y != 0) || (moveDirection.z != 0)) {
+		velocity = moveDirection;
 		moveDirection.Normalize();
 		position += moveDirection * speed * deltaTime;
+		if (speed < 3.0f)
+			speed += 0.02f;
+	}
+	else if (speed > 0.0f) {
+		speed -= 0.02f;
+		rotationSpeed = speed / radius;
+		rotationAngle = rotationSpeed * deltaTime;
+
+		position += velocity * speed * deltaTime;
+		if (velocity == -forward) {
+			rotation.x += rotationAngle;
+		}
+		else if (velocity == forward) {
+			rotation.x -= rotationAngle;
+		}
 	};
 
 	katamariMesh->Update();
-	rotation.y = atan2(forward.x, forward.z);
-
+	if ((moveDirection.x != 0) || (moveDirection.y != 0) || (moveDirection.z != 0))
+		rotation.y = atan2(forward.x, forward.z);
 }
 
 KatamariBall::KatamariBall(Game* gameInput)
@@ -80,8 +96,9 @@ void KatamariBall::CollisionCheck()
 			Vector3 vectorToObject = collision.Center - object->collision.Center;
 			//vectorToObject.Normalize();
 			//vectorToObject *= radius;
-			//object->position = vectorToObject;
 			object->position = vectorToObject;
+			//Matrix ballInverted = katamariMesh->constData.transformations.Invert();
+			//object->tranformations *= ballInverted;
 			collected.push_back(object);
 		}
 	}
@@ -102,9 +119,22 @@ void KatamariBall::Update()
 	mainOrbit->SetLookPoint(position + Vector3::Transform(mainOrbit->orbit, Matrix::CreateRotationY(0.0f)));
 
 	for (Pickable* object : collected) {
+		Vector3 rotationPart = object->rotation;
+		Vector3 positionPart = object->position;
 		for (TexturedTriangle* part : object->mesh) {
+			//part->transforms.rotate = Matrix::CreateFromYawPitchRoll(object->rotation) * Matrix::CreateFromYawPitchRoll(rotation);
+
+			//Vector3 localPos = object->position - position;
+			//localPos = Vector3::Transform(localPos, Matrix::CreateFromYawPitchRoll(rotation));
+			//position = position + localPos;
+	
+			part->transforms.rotate = Matrix::CreateFromYawPitchRoll(rotationPart) * katamariMesh->transforms.rotate;
 			Vector3 newObjectPosition = Vector3::Transform(object->position, Matrix::CreateFromYawPitchRoll(rotation));
-			part->transforms.move = Matrix::CreateTranslation(position + newObjectPosition);
+			part->transforms.move = Matrix::CreateTranslation(positionPart + newObjectPosition) * katamariMesh->transforms.move;
+			//part->transforms.move = Matrix::CreateTranslation(position + newObjectPosition);
+			//part->needMultip = false;
+			//part->constData.transformations = (katamariMesh->transforms.scale * katamariMesh->transforms.rotate * katamariMesh->transforms.move) * object->tranformations;
+			//part->transforms.move = Matrix::CreateTranslation(position);			
 		}
 	}
 }

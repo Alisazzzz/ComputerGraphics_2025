@@ -33,7 +33,7 @@ private:
 	FPSCamera* mainFPS;
 	Game* game;
 
-	int objectsCount = 3;
+	int objectsCount = 10;
 	Vector3 ruMapCorner = Vector3(20, 0, 20);
 	Vector3 ldMapCorner = Vector3(0, 0, 0);
 

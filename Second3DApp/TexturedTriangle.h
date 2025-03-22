@@ -48,6 +48,7 @@ private:
 	ID3D11SamplerState* samplerState;
 
 public:
+	bool needMultip = true;
 	std::vector<Vertex> points;
 
 	Transformations transforms;

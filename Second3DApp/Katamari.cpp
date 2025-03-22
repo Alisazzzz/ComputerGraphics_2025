@@ -27,9 +27,9 @@ void Katamari::RandomObjectGeneration()
 	uniform_real_distribution<> distZ(ldMapCorner.z, ruMapCorner.z);
 	uniform_real_distribution<> rotY(0, DirectX::XM_2PI);
 
-	vector<LPCSTR> models;
-	models.push_back("./Models/Rose/Red_rose_SF.obj");
-	//models.push_back("./Models/SlothSword/sword.obj");
+	std::vector<std::vector<TexturedMesh>> models;
+	models.push_back(MeshGenerator::getInstance()->getFromFile("./Models/Rose/Red_rose_SF.obj"));
+	models.push_back(MeshGenerator::getInstance()->getFromFile("./Models/PinkRose/Pink_rose_retopo_SF.obj"));
 
 	uniform_int_distribution<> modelDist(0, models.size()-1);
 
@@ -41,7 +41,7 @@ void Katamari::RandomObjectGeneration()
 		float rotationY = rotY(gen);
 		std::cout << rotationY << std::endl;
 
-		std::vector<TexturedMesh> meshes = MeshGenerator::getInstance()->getFromFile(models.at(modelDist(gen)));
+		std::vector<TexturedMesh> meshes = models.at(modelDist(gen));
 		std::vector<TexturedTriangle*> modelParts;
 
 		for (TexturedMesh mesh : meshes) {
@@ -63,6 +63,7 @@ void Katamari::RandomObjectGeneration()
 			collision,
 			position,
 			Vector3(DirectX::XM_PIDIV2, DirectX::XM_PIDIV2, rotationY),
+			Matrix::CreateScale(1.0f, 1.0f, 1.0f) * Matrix::CreateFromYawPitchRoll(Vector3(DirectX::XM_PIDIV2, DirectX::XM_PIDIV2, rotationY)) * Matrix::CreateTranslation(position),
 		};
 
 		pickables.push_back(object);

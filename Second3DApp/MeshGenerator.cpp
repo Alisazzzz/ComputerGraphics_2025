@@ -231,12 +231,12 @@ TexturedMesh MeshGenerator::getTexturedSphere(float radius, int latitudeBands, i
 			int second = first + longitudeBands + 1;
 
 			indices.push_back(first);
-			indices.push_back(second);
 			indices.push_back(first + 1);
+			indices.push_back(second);
 
 			indices.push_back(second);
-			indices.push_back(second + 1);
 			indices.push_back(first + 1);
+			indices.push_back(second + 1);
 		}
 	}
 
