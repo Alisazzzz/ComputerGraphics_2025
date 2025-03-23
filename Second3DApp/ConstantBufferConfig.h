@@ -28,3 +28,8 @@ struct Transformations {
 	Matrix rotate;
 	Matrix scale;
 };
+
+struct LightData {
+	Vector3 ambientColor;
+	float ambientStrength;
+};

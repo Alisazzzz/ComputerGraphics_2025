@@ -113,7 +113,7 @@ void TexturedTriangle::Initialize(LPCWSTR shaderSource,
 
 	res = game->device->CreateRasterizerState(&rastDesc, &rastState);
 
-	//Constant buffer
+	//Constant buffers: transforms
 	D3D11_BUFFER_DESC constBufferDesc = {};
 	constBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	constBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -132,6 +132,21 @@ void TexturedTriangle::Initialize(LPCWSTR shaderSource,
 	constData = {};
 	constData.transformations = transforms.scale * transforms.rotate * transforms.move;
 	constData.color = Vector4(0.0f, 0.0f, 0.0f, 0.0f);
+
+	//Constant buffers: light
+	D3D11_BUFFER_DESC lightBufferDesc = {};
+	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	lightBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	lightBufferDesc.MiscFlags = 0;
+	lightBufferDesc.StructureByteStride = 0;
+	lightBufferDesc.ByteWidth = sizeof(LightData);
+
+	game->device->CreateBuffer(&lightBufferDesc, nullptr, &lightBuffer);
+
+	lightData = {};
+	lightData.ambientColor = Vector3(1.0f, 1.0f, 1.0f);
+	lightData.ambientStrength = 0.0f;
 
 	//Texture
 	D3D11_SAMPLER_DESC samplerDesc = {};
@@ -187,6 +202,7 @@ void TexturedTriangle::Draw()
 	game->context->IASetIndexBuffer(ib, DXGI_FORMAT_R32_UINT, 0);
 
 	game->context->VSSetConstantBuffers(0, 1, &constBuffer);
+	game->context->VSSetConstantBuffers(1, 1, &lightBuffer);
 
 	game->context->PSSetShaderResources(0, 1, &textureView);
 	game->context->PSSetSamplers(0, 1, &samplerState);
@@ -214,6 +230,11 @@ void TexturedTriangle::Update()
 	game->context->Map(constBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &res);
 	memcpy(res.pData, &constData, sizeof(ConstData));
 	game->context->Unmap(constBuffer, 0);
+
+	D3D11_MAPPED_SUBRESOURCE resLight = {};
+	game->context->Map(lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &resLight);
+	memcpy(resLight.pData, &lightData, sizeof(LightData));
+	game->context->Unmap(lightBuffer, 0);
 }
 
 void TexturedTriangle::DestroyResources()

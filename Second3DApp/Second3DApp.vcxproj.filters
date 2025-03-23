@@ -144,9 +144,6 @@
     <ClInclude Include="KatamariBall.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Pickable.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Delegates.natvis" />

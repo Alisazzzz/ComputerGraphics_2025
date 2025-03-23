@@ -18,6 +18,12 @@ cbuffer ConstBuf : register(b0)
     float4 color;
 };
 
+cbuffer LightBuf : register(b1)
+{
+    float3 ambientColor;
+    float ambientStrength;
+};
+
 Texture2D diffuseMap : register(t0);
 SamplerState samp : register(s0);
 
@@ -32,13 +38,17 @@ PS_IN VSMain(VS_IN input)
     pos = mul(pos, projection);
     
     output.pos = pos;
-    output.tex = input.tex.xy;
+    //output.tex = input.tex.xy;
+    output.tex = (0.0f, 0.0f);
 	
     return output;
 };
 
 float4 PSMain(PS_IN input) : SV_Target
 {
-    float4 texColor = diffuseMap.Sample(samp, input.tex);
-    return texColor;
+    //float3 texColor = diffuseMap.Sample(samp, input.tex);
+    //float3 ambientLight = ambientColor * ambientStrength * 0.0f;
+    //float3 finalColor = float3(0.0f, 0.0f, 0.0f);
+    
+    return float4(0.0f, 0.0f, 0.0f, 1.0f);
 };

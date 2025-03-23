@@ -64,7 +64,6 @@
     <ClInclude Include="MeshGenerator.h" />
     <ClInclude Include="OrbitCamera.h" />
     <ClInclude Include="OrthoCamera.h" />
-    <ClInclude Include="Pickable.h" />
     <ClInclude Include="PlanetSystem.h" />
     <ClInclude Include="Pong.h" />
     <ClInclude Include="TexturedTriangle.h" />

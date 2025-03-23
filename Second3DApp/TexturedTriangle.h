@@ -36,6 +36,7 @@ private:
 	ID3D11RasterizerState* rastState;
 
 	ID3D11Buffer* constBuffer;
+	ID3D11Buffer* lightBuffer;
 
 	std::vector<UINT> strides;
 	std::vector<UINT> offsets;
@@ -53,6 +54,7 @@ public:
 
 	Transformations transforms;
 	ConstData constData;
+	LightData lightData;
 
 	TexturedTriangle(Game* gameInput) : GameComponent(gameInput)
 	{
