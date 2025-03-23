@@ -19,11 +19,10 @@ class Katamari;
 
 struct Pickable {
 	std::vector<TexturedTriangle*> mesh;
-	//DirectX::BoundingBox collision;
 	DirectX::BoundingOrientedBox collision;
 	Vector3 position;
-	Vector3 rotation;
-	Matrix tranformations;
+	Quaternion rotation;
+	bool collected;
 };
 
 using namespace DirectX::SimpleMath;
@@ -41,17 +40,22 @@ private:
 	OrbitCamera* mainOrbit;
 
 	Vector3 velocity = Vector3(0.0f, 0.0f, 0.0f);
-	Vector3 position = Vector3(0.0f, 0.0f, 0.0f);
-	Vector3 rotation = Vector3(0.0f, 0.0f, 0.0f);
+	Vector3 position = Vector3(0.0f, -1.0f, 0.0f);
+	Quaternion rotation = Quaternion(1.0f, 0.0f, 0.0f, 0.0f);
+	Matrix rotationDelta = Matrix::CreateFromAxisAngle(Vector3(1.0f, 0.0f, 0.0f), 0.0f);
+	
 	float collisionScale = 1.0f;
 
-	float speed = 0.01f;
-	float rotationSpeed = 7.0f;
-	float radius = 0.5f;
+	float speed = 0.00f;
+	float maxSpeed = 5.00f;
+	float radius = 1.0f;
+	bool movingForward = true;
 
 	std::vector<Pickable*> collected;
 
+	float Inertia(float speed, bool moving);
 	void MoveKatamari(float deltaTime);
+	void PutUpKatamari(float deltaTime);
 
 public:
 	KatamariBall(Game* gameInput);

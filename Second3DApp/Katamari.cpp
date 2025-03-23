@@ -29,7 +29,7 @@ void Katamari::RandomObjectGeneration()
 
 	std::vector<std::vector<TexturedMesh>> models;
 	models.push_back(MeshGenerator::getInstance()->getFromFile("./Models/Rose/Red_rose_SF.obj"));
-	models.push_back(MeshGenerator::getInstance()->getFromFile("./Models/PinkRose/Pink_rose_retopo_SF.obj"));
+	//models.push_back(MeshGenerator::getInstance()->getFromFile("./Models/PinkRose/Pink_rose_retopo_SF.obj"));
 
 	uniform_int_distribution<> modelDist(0, models.size()-1);
 
@@ -54,7 +54,7 @@ void Katamari::RandomObjectGeneration()
 		}
 
 		DirectX::BoundingOrientedBox collision;
-		collision.Extents = Vector3(0.1f, 1.1f, 0.1f);
+		collision.Extents = Vector3(0.05f, 1.1f, 0.05f);
 ;		collision.Orientation = Quaternion::CreateFromYawPitchRoll(Vector3(DirectX::XM_PIDIV2, DirectX::XM_PIDIV2, rotationY));
 		collision.Center = Vector3(position.x, position.y, position.z);
 		
@@ -62,8 +62,8 @@ void Katamari::RandomObjectGeneration()
 			modelParts,
 			collision,
 			position,
-			Vector3(DirectX::XM_PIDIV2, DirectX::XM_PIDIV2, rotationY),
-			Matrix::CreateScale(1.0f, 1.0f, 1.0f) * Matrix::CreateFromYawPitchRoll(Vector3(DirectX::XM_PIDIV2, DirectX::XM_PIDIV2, rotationY)) * Matrix::CreateTranslation(position),
+			Quaternion::CreateFromYawPitchRoll(DirectX::XM_PIDIV2, DirectX::XM_PIDIV2, rotationY),
+			false,
 		};
 
 		pickables.push_back(object);
