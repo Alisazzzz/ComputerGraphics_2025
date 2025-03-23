@@ -25,11 +25,11 @@ void TexturedTriangle::Initialize(LPCWSTR shaderSource,
 		&vertexByteCode,
 		&errorVertexCode);
 
-	D3D_SHADER_MACRO Shader_Macros[] = { "TEST", "1", "TCOLOR", "float4(0.0f, 1.0f, 0.0f, 1.0f)", nullptr, nullptr };
+	//D3D_SHADER_MACRO Shader_Macros[] = { "TEST", "1", "TCOLOR", "float4(0.0f, 1.0f, 0.0f, 1.0f)", nullptr, nullptr };
 	ID3DBlob* errorPixelCode = nullptr;
 
 	res = D3DCompileFromFile(shaderSource,
-		Shader_Macros /*macros*/,
+		nullptr /*macros*/,
 		nullptr /*include*/,
 		"PSMain",
 		"ps_5_0",
@@ -146,7 +146,7 @@ void TexturedTriangle::Initialize(LPCWSTR shaderSource,
 
 	lightData = {};
 	lightData.ambientColor = Vector3(1.0f, 1.0f, 1.0f);
-	lightData.ambientStrength = 0.0f;
+	lightData.ambientStrength = 1.0f;
 
 	//Texture
 	D3D11_SAMPLER_DESC samplerDesc = {};
@@ -202,7 +202,7 @@ void TexturedTriangle::Draw()
 	game->context->IASetIndexBuffer(ib, DXGI_FORMAT_R32_UINT, 0);
 
 	game->context->VSSetConstantBuffers(0, 1, &constBuffer);
-	game->context->VSSetConstantBuffers(1, 1, &lightBuffer);
+	game->context->PSSetConstantBuffers(1, 1, &lightBuffer);
 
 	game->context->PSSetShaderResources(0, 1, &textureView);
 	game->context->PSSetSamplers(0, 1, &samplerState);
