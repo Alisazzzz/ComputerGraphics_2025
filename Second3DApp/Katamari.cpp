@@ -33,7 +33,7 @@ void Katamari::RandomObjectGeneration()
 
 	uniform_int_distribution<> modelDist(0, models.size()-1);
 
-	std::vector<UINT> strides = { 24 };
+	std::vector<UINT> strides = { 36 };
 	std::vector<UINT> offsets = { 0 };
 
 	for (int i = 0; i < objectsCount; i++) {

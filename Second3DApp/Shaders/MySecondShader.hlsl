@@ -2,12 +2,14 @@ struct VS_IN
 {
     float4 pos : POSITION0;
     float2 tex : TEXCOORD0;
+    float3 norm : NORMAL;
 };
 
 struct PS_IN
 {
     float4 pos : SV_POSITION;
     float2 tex : TEXCOORD0;
+    float3 norm : TEXCOORD1;
 };
 
 cbuffer ConstBuf : register(b0)
@@ -39,6 +41,7 @@ PS_IN VSMain(VS_IN input)
     
     output.pos = pos;
     output.tex = input.tex.xy;
+    output.norm = normalize(mul(float4(input.norm, 0.0f), transformations));
 	
     return output;
 };
@@ -46,6 +49,7 @@ PS_IN VSMain(VS_IN input)
 float4 PSMain(PS_IN input) : SV_Target
 {
     float3 texColor = diffuseMap.Sample(samp, input.tex);
+    //float3 texColor = input.norm;
     float3 ambientLight = ambientColor * ambientStrength;
     float3 finalColor = texColor * ambientLight;
     

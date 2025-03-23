@@ -20,7 +20,12 @@ TexturedMesh MeshGenerator::ProcessMesh(aiMesh* mesh, const aiScene* scene, std:
 			texCor = DirectX::XMFLOAT2(pTexCoord->x, pTexCoord->y);
 		};
 
-		Vertex vertex = { point, texCor };
+		DirectX::XMFLOAT3 normal;
+		normal.x = mesh->mNormals[i].x;
+		normal.y = mesh->mNormals[i].y;
+		normal.z = mesh->mNormals[i].z;
+
+		Vertex vertex = { point, texCor, normal };
 		points.push_back(vertex);
 	}
 
@@ -29,9 +34,6 @@ TexturedMesh MeshGenerator::ProcessMesh(aiMesh* mesh, const aiScene* scene, std:
 		indeces.push_back(Face.mIndices[0]);
 		indeces.push_back(Face.mIndices[1]);
 		indeces.push_back(Face.mIndices[2]);
-		/*aiFace face = mesh->mFaces[i];
-		for (UINT j = 0; j < face.mNumIndices; j++)
-			indeces.push_back(face.mIndices[j]);*/
 	}
 
 	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
@@ -218,10 +220,13 @@ TexturedMesh MeshGenerator::getTexturedSphere(float radius, int latitudeBands, i
 			float v = 1.0f - (float)lat / latitudeBands;
 			DirectX::XMFLOAT2 texCor = DirectX::XMFLOAT2(u, v);
 
-			Vertex vertex = { point, texCor };
+			DirectX::XMFLOAT3 normal = DirectX::XMFLOAT3(x, y, z);
+
+			Vertex vertex = { point, texCor, normal };
 			points.push_back(vertex);
 		}
 	}
+
 
 	for (int lat = 0; lat < latitudeBands; ++lat)
 	{

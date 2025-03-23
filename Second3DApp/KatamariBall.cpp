@@ -59,7 +59,7 @@ KatamariBall::KatamariBall(Game* gameInput)
 	game = gameInput;
 	katamariGame = Katamari::getInstance();
 
-	std::vector<UINT> strides = { 24 };
+	std::vector<UINT> strides = { 36 };
 	std::vector<UINT> offsets = { 0 };	
 
 	/*katamariMesh = new TriangleComponent(game);
