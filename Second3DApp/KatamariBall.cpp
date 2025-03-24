@@ -59,9 +59,6 @@ KatamariBall::KatamariBall(Game* gameInput)
 	game = gameInput;
 	katamariGame = Katamari::getInstance();
 
-	std::vector<UINT> strides = { 36 };
-	std::vector<UINT> offsets = { 0 };	
-
 	/*katamariMesh = new TriangleComponent(game);
 	Mesh ballSphere = MeshGenerator::getInstance()->getSphere(1.0f, 24, 24, Vector4(0.8f, 0.05f, 0.1f, 1.0f), Vector4(1.0f, 0.0f, 0.0f, 1.0f));
 	katamariMesh->Initialize(L"./Shaders/MyVeryFirstShader.hlsl", ballSphere.points, ballSphere.indeces, strides, offsets, false);
@@ -69,7 +66,7 @@ KatamariBall::KatamariBall(Game* gameInput)
 
 	katamariMesh = new TexturedTriangle(game);
 	TexturedMesh ballSphere = MeshGenerator::getInstance()->getTexturedSphere(radius, 24, 24);
-	katamariMesh->Initialize(L"./Shaders/MySecondShader.hlsl", ballSphere.points, ballSphere.indeces, strides, offsets, false, L"./Textures/Earth_texture.jpeg");
+	katamariMesh->Initialize(L"./Shaders/MySecondShader.hlsl", ballSphere.points, ballSphere.indeces, false, L"./Textures/Earth_texture.jpeg");
 	game->components.push_back(katamariMesh);
 
 	DirectX::BoundingSphere collision = DirectX::BoundingSphere(position, radius);

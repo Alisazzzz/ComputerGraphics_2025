@@ -18,6 +18,7 @@
 #include "FPSCamera.h"
 
 #include "KatamariBall.h"
+#include "DiffuseLight.h"
 
 class Game;
 
@@ -38,6 +39,7 @@ private:
 	Vector3 ldMapCorner = Vector3(0, 0, 0);
 
 	KatamariBall* ball;
+	DiffuseLight* light;
 
 public:
 	std::vector<Pickable*> pickables;

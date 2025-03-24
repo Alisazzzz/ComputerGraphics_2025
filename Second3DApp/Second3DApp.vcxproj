@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Delegates.cpp" />
+    <ClCompile Include="DiffuseLight.cpp" />
     <ClCompile Include="DisplayWin32.cpp" />
     <ClCompile Include="FPSCamera.cpp" />
     <ClCompile Include="Game.cpp" />
@@ -52,6 +53,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ConstantBufferConfig.h" />
     <ClInclude Include="Delegates.h" />
+    <ClInclude Include="DiffuseLight.h" />
     <ClInclude Include="DisplayWin32.h" />
     <ClInclude Include="FPSCamera.h" />
     <ClInclude Include="Game.h" />

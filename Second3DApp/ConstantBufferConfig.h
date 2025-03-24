@@ -32,4 +32,9 @@ struct Transformations {
 struct LightData {
 	Vector3 ambientColor;
 	float ambientStrength;
+
+	Vector3 diffuseLightColor;
+	float diffuseLightStrength;
+	Vector4 diffuseLightPosition;
+	Vector4 diffuseLightAttenuation;
 };

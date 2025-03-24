@@ -22,6 +22,7 @@
 #include "Camera.h"
 #include "FPSCamera.h"
 #include "OrbitCamera.h"
+#include "DiffuseLight.h"
 
 class DisplayWin32;
 
@@ -74,6 +75,8 @@ public:
 	Camera* activeCamera;
 	//OrbitCamera* camm;
 	FPSCamera* mainFPS;
+
+	DiffuseLight* light;
 
 	void Initialize(int screenWidthInput, int screenHeightInput);
 	void CreateBackBuffer();

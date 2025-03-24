@@ -3,14 +3,13 @@
 
 void TexturedTriangle::Initialize(LPCWSTR shaderSource, 
 	std::vector<Vertex> pointsInput, std::vector<int> indecesInput, 
-	std::vector<UINT> stridesInput, std::vector<UINT> offsetsInput, 
 	bool is2DInput, std::wstring texturePath)
 {
 	points = pointsInput;
 	indeces = indecesInput;
 
-	strides = stridesInput;
-	offsets = offsetsInput;
+	strides = { 36 };
+	offsets = { 0 };
 
 	is2D = is2DInput;
 
@@ -25,7 +24,6 @@ void TexturedTriangle::Initialize(LPCWSTR shaderSource,
 		&vertexByteCode,
 		&errorVertexCode);
 
-	//D3D_SHADER_MACRO Shader_Macros[] = { "TEST", "1", "TCOLOR", "float4(0.0f, 1.0f, 0.0f, 1.0f)", nullptr, nullptr };
 	ID3DBlob* errorPixelCode = nullptr;
 
 	res = D3DCompileFromFile(shaderSource,
@@ -49,30 +47,9 @@ void TexturedTriangle::Initialize(LPCWSTR shaderSource,
 		nullptr, &pixelShader);
 
 	D3D11_INPUT_ELEMENT_DESC InputElements[] = {
-	D3D11_INPUT_ELEMENT_DESC {
-		"POSITION",
-		0,
-		DXGI_FORMAT_R32G32B32A32_FLOAT,
-		0,
-		0,
-		D3D11_INPUT_PER_VERTEX_DATA,
-		0},
-	D3D11_INPUT_ELEMENT_DESC {
-		"TEXCOORD",
-		0,
-		DXGI_FORMAT_R32G32_FLOAT,
-		0,
-		D3D11_APPEND_ALIGNED_ELEMENT,
-		D3D11_INPUT_PER_VERTEX_DATA,
-		0},
-	D3D11_INPUT_ELEMENT_DESC {
-		"NORMAL",
-		0,
-		DXGI_FORMAT_R32G32B32_FLOAT,
-		0,
-		D3D11_APPEND_ALIGNED_ELEMENT,
-		D3D11_INPUT_PER_VERTEX_DATA,
-		0}
+		D3D11_INPUT_ELEMENT_DESC { "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		D3D11_INPUT_ELEMENT_DESC { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		D3D11_INPUT_ELEMENT_DESC { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0}
 	};
 
 	game->device->CreateInputLayout(
@@ -154,7 +131,7 @@ void TexturedTriangle::Initialize(LPCWSTR shaderSource,
 
 	lightData = {};
 	lightData.ambientColor = Vector3(1.0f, 1.0f, 1.0f);
-	lightData.ambientStrength = 1.0f;
+	lightData.ambientStrength = 0.3f;
 
 	//Texture
 	D3D11_SAMPLER_DESC samplerDesc = {};
@@ -238,6 +215,11 @@ void TexturedTriangle::Update()
 	game->context->Map(constBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &res);
 	memcpy(res.pData, &constData, sizeof(ConstData));
 	game->context->Unmap(constBuffer, 0);
+
+	lightData.diffuseLightColor = game->light->lightColor;
+	lightData.diffuseLightPosition = game->light->position;
+	lightData.diffuseLightStrength = game->light->lightStrength;
+	lightData.diffuseLightAttenuation = game->light->lightAttenuation;
 
 	D3D11_MAPPED_SUBRESOURCE resLight = {};
 	game->context->Map(lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &resLight);

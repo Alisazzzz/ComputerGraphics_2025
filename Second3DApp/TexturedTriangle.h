@@ -20,6 +20,8 @@
 #include "ConstantBufferConfig.h";
 #include "Vertex.h";
 
+#include "DiffuseLight.h";
+
 class TexturedTriangle : public GameComponent
 {
 private:
@@ -71,11 +73,11 @@ public:
 		rastState = nullptr;
 
 		constBuffer = nullptr;
+		lightBuffer = nullptr;
 	};
 
 	void Initialize(LPCWSTR shaderSource,
 		std::vector<Vertex> pointsInput, std::vector<int> indecesInput,
-		std::vector<UINT> stridesInput, std::vector<UINT> offsetsInput,
 		bool is2DInput, std::wstring texturePath);
 
 	void Draw();

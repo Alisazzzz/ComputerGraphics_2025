@@ -16,6 +16,13 @@ void Katamari::Initialize()
 
 	ball = new KatamariBall(game);
 	mainOrbit = ball->getCamera();
+
+	light = new DiffuseLight(game);
+	light->Initialize();
+	light->lightColor = Vector3(1.0f, 1.0f, 1.0f);
+	light->lightStrength = 1.0f;
+	light->position = Vector4(0.0f, -3.0f, 0.0f, 1.0f);
+	game->light = light;
 }
 
 void Katamari::RandomObjectGeneration()
@@ -29,12 +36,9 @@ void Katamari::RandomObjectGeneration()
 
 	std::vector<std::vector<TexturedMesh>> models;
 	models.push_back(MeshGenerator::getInstance()->getFromFile("./Models/Rose/Red_rose_SF.obj"));
-	//models.push_back(MeshGenerator::getInstance()->getFromFile("./Models/PinkRose/Pink_rose_retopo_SF.obj"));
+	models.push_back(MeshGenerator::getInstance()->getFromFile("./Models/PinkRose/Pink_rose_retopo_SF.obj"));
 
 	uniform_int_distribution<> modelDist(0, models.size()-1);
-
-	std::vector<UINT> strides = { 36 };
-	std::vector<UINT> offsets = { 0 };
 
 	for (int i = 0; i < objectsCount; i++) {
 		Vector3 position = Vector3(distX(gen), 0.0f, distZ(gen));
@@ -46,7 +50,7 @@ void Katamari::RandomObjectGeneration()
 
 		for (TexturedMesh mesh : meshes) {
 			TexturedTriangle* modelPart = new TexturedTriangle(game);
-			modelPart->Initialize(L"./Shaders/MySecondShader.hlsl", mesh.points, mesh.indeces, strides, offsets, false, mesh.texturePath);
+			modelPart->Initialize(L"./Shaders/MySecondShader.hlsl", mesh.points, mesh.indeces, false, mesh.texturePath);
 			modelPart->transforms.rotate = Matrix::CreateFromYawPitchRoll(Vector3(DirectX::XM_PIDIV2, DirectX::XM_PIDIV2, rotationY));
 			modelPart->transforms.move = Matrix::CreateTranslation(position);
 			game->components.push_back(modelPart);
