@@ -41,7 +41,7 @@ private:
 
 	Vector3 velocity = Vector3(0.0f, 0.0f, 0.0f);
 	Vector3 position = Vector3(0.0f, -1.0f, 0.0f);
-	Quaternion rotation = Quaternion(1.0f, 0.0f, 0.0f, 0.0f);
+	Quaternion rotation = Quaternion(0.0f, 0.0f, 0.0f, 1.0f);
 	Matrix rotationDelta = Matrix::CreateFromAxisAngle(Vector3(1.0f, 0.0f, 0.0f), 0.0f);
 	
 	float collisionScale = 1.0f;

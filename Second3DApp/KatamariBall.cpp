@@ -22,7 +22,7 @@ void KatamariBall::MoveKatamari(float deltaTime)
 	forward.y = 0.0f;
 	forward.Normalize();
 
-	Vector3 right = forward.Cross(mainOrbit->upAxis);
+	Vector3 right = forward.Cross(Vector3(0.0f, 1.0f, 0.0f));
 	right.Normalize();
 	
 	Vector3 moveDirection = Vector3(0.0f, 0.0f, 0.0f);
@@ -68,6 +68,7 @@ KatamariBall::KatamariBall(Game* gameInput)
 	TexturedMesh ballSphere = MeshGenerator::getInstance()->getTexturedSphere(radius, 24, 24);
 	katamariMesh->Initialize(L"./Shaders/MySecondShader.hlsl", ballSphere.points, ballSphere.indeces, false, L"./Textures/Earth_texture.jpeg");
 	game->components.push_back(katamariMesh);
+	katamariMesh->transforms.move = Matrix::CreateTranslation(position);
 
 	DirectX::BoundingSphere collision = DirectX::BoundingSphere(position, radius);
 
@@ -84,6 +85,12 @@ void KatamariBall::CollisionCheck()
 		if (collision.Intersects(object->collision) && !object->collected) {			
 			collected.push_back(object);
 			object->collected = true;
+			object->position = Vector3::Transform(object->position - position, rotation);
+	
+			Quaternion rotationInverted;
+			rotation.Inverse(rotationInverted);	
+			Quaternion localRotation = object->rotation * rotationInverted;
+			object->rotation = localRotation;
 		}
 	}
 }
@@ -106,15 +113,11 @@ void KatamariBall::Update()
 
 	for (Pickable* object : collected) {
 
-		Vector3 localPosition = object->position - position;
-		localPosition = Vector3::Transform(localPosition, rotationDelta);
-		object->position = localPosition + position;
-
-		object->rotation *= Quaternion::CreateFromRotationMatrix(rotationDelta);
+		Vector3 newPosition = Vector3::Transform(object->position, rotation);
 
 		for (TexturedTriangle* part : object->mesh) {			
-			part->transforms.move = Matrix::CreateTranslation(object->position);
-			part->transforms.rotate = Matrix::CreateFromQuaternion(object->rotation);			 						
+			part->transforms.move = Matrix::CreateTranslation(newPosition + position);
+			part->transforms.rotate = Matrix::CreateFromQuaternion(object->rotation * rotation);
 		}
 	}
 }
