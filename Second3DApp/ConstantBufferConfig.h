@@ -16,6 +16,8 @@
 
 using namespace DirectX::SimpleMath;
 
+#include "Lighting.h";
+
 struct ConstData {
 	Matrix transformations;
 	Matrix view;
@@ -29,12 +31,15 @@ struct Transformations {
 	Matrix scale;
 };
 
-struct LightData {
-	Vector3 ambientColor;
-	float ambientStrength;
+struct Material {
+	Vector4 ambient;
+	Vector4 diffuse;
+	Vector4 specular;
+};
 
-	Vector3 diffuseLightColor;
-	float diffuseLightStrength;
-	Vector4 diffuseLightPosition;
-	Vector4 diffuseLightAttenuation;
+struct LightData {	
+	Material material;
+	DirectionalLight directional;
+	PointLight point;
+	Vector4 spectator;
 };

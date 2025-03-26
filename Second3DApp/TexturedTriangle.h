@@ -19,8 +19,7 @@
 #include "GameComponent.h"
 #include "ConstantBufferConfig.h";
 #include "Vertex.h";
-
-#include "DiffuseLight.h";
+#include "Lighting.h";
 
 class TexturedTriangle : public GameComponent
 {
@@ -50,6 +49,8 @@ private:
 	ID3D11ShaderResourceView* textureView;
 	ID3D11SamplerState* samplerState;
 
+	Material* material;
+
 public:
 	bool needMultip = true;
 	std::vector<Vertex> points;
@@ -78,7 +79,7 @@ public:
 
 	void Initialize(LPCWSTR shaderSource,
 		std::vector<Vertex> pointsInput, std::vector<int> indecesInput,
-		bool is2DInput, std::wstring texturePath);
+		bool is2DInput, std::wstring texturePath, Material* materialInput);
 
 	void Draw();
 

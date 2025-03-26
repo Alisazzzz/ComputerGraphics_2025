@@ -3,7 +3,7 @@
 
 void TexturedTriangle::Initialize(LPCWSTR shaderSource, 
 	std::vector<Vertex> pointsInput, std::vector<int> indecesInput, 
-	bool is2DInput, std::wstring texturePath)
+	bool is2DInput, std::wstring texturePath, Material* materialInput)
 {
 	points = pointsInput;
 	indeces = indecesInput;
@@ -12,6 +12,7 @@ void TexturedTriangle::Initialize(LPCWSTR shaderSource,
 	offsets = { 0 };
 
 	is2D = is2DInput;
+	material = materialInput;
 
 	ID3DBlob* errorVertexCode = nullptr;
 	HRESULT res = D3DCompileFromFile(shaderSource,
@@ -130,8 +131,6 @@ void TexturedTriangle::Initialize(LPCWSTR shaderSource,
 	game->device->CreateBuffer(&lightBufferDesc, nullptr, &lightBuffer);
 
 	lightData = {};
-	lightData.ambientColor = Vector3(1.0f, 1.0f, 1.0f);
-	lightData.ambientStrength = 0.3f;
 
 	//Texture
 	D3D11_SAMPLER_DESC samplerDesc = {};
@@ -201,8 +200,7 @@ void TexturedTriangle::Draw()
 
 void TexturedTriangle::Update()
 {
-	if (needMultip)
-		constData.transformations = transforms.scale * transforms.rotate * transforms.move;
+	constData.transformations = transforms.scale * transforms.rotate * transforms.move;
 	constData.transformations = constData.transformations.Transpose();
 
 	constData.view = game->activeCamera->cameraInfo.view;
@@ -216,10 +214,14 @@ void TexturedTriangle::Update()
 	memcpy(res.pData, &constData, sizeof(ConstData));
 	game->context->Unmap(constBuffer, 0);
 
-	lightData.diffuseLightColor = game->light->lightColor;
-	lightData.diffuseLightPosition = game->light->position;
-	lightData.diffuseLightStrength = game->light->lightStrength;
-	lightData.diffuseLightAttenuation = game->light->lightAttenuation;
+	if (game->pntLight != nullptr)
+		lightData.point = *(game->pntLight);
+
+	if (game->dirLight != nullptr)
+		lightData.directional = *(game->dirLight);
+
+	lightData.material = *material;
+	lightData.spectator = Vector4(game->activeCamera->lookPoint.x, game->activeCamera->lookPoint.y, game->activeCamera->lookPoint.z, 1.0f);
 
 	D3D11_MAPPED_SUBRESOURCE resLight = {};
 	game->context->Map(lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &resLight);
@@ -245,4 +247,7 @@ void TexturedTriangle::DestroyResources()
 	ib->Release();
 
 	rastState->Release();
+
+	if (material != nullptr)
+		delete material;
 }

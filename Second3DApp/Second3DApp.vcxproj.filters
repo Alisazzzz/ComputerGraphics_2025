@@ -25,6 +25,9 @@
     <Filter Include="Source Files\Components">
       <UniqueIdentifier>{56107a26-169b-43b9-8c9e-c0e073c76e50}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Lights">
+      <UniqueIdentifier>{c01e85df-e545-4e03-8cc4-41b443f64b36}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MySuper3DApp.cpp">
@@ -84,7 +87,7 @@
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\MyVeryFirstShader.hlsl" />
-    <FxCompile Include="MySecondShader.hlsl" />
+    <FxCompile Include="Shaders\MySecondShader.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
@@ -143,6 +146,9 @@
     </ClInclude>
     <ClInclude Include="KatamariBall.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Lighting.h">
+      <Filter>Header Files\Lights</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

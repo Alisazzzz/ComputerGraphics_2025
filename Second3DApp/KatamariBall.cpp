@@ -6,7 +6,7 @@
 float KatamariBall::Inertia(float speed, bool moving)
 {
 	float resultSpeed = speed;
-	static float speedGrow = 0.02f;
+	static float speedGrow = 0.04f;
 
 	if (moving && resultSpeed < maxSpeed) { resultSpeed += speedGrow; }
 	else if (moving && resultSpeed >= maxSpeed) { resultSpeed = maxSpeed; }
@@ -64,9 +64,15 @@ KatamariBall::KatamariBall(Game* gameInput)
 	katamariMesh->Initialize(L"./Shaders/MyVeryFirstShader.hlsl", ballSphere.points, ballSphere.indeces, strides, offsets, false);
 	game->components.push_back(katamariMesh);*/
 
+	Material* mat = new Material{
+		Vector4(0.23f, 0.23f, 0.23f, 1.00f),
+		Vector4(0.28f, 0.28f, 0.28f, 1.00f),
+		Vector4(0.77f, 0.77f, 0.77f, 5.9f)
+	};
+
 	katamariMesh = new TexturedTriangle(game);
 	TexturedMesh ballSphere = MeshGenerator::getInstance()->getTexturedSphere(radius, 24, 24);
-	katamariMesh->Initialize(L"./Shaders/MySecondShader.hlsl", ballSphere.points, ballSphere.indeces, false, L"./Textures/Earth_texture.jpeg");
+	katamariMesh->Initialize(L"./Shaders/MySecondShader.hlsl", ballSphere.points, ballSphere.indeces, false, L"./Textures/Earth_texture.jpeg", mat);
 	game->components.push_back(katamariMesh);
 	katamariMesh->transforms.move = Matrix::CreateTranslation(position);
 
@@ -85,12 +91,13 @@ void KatamariBall::CollisionCheck()
 		if (collision.Intersects(object->collision) && !object->collected) {			
 			collected.push_back(object);
 			object->collected = true;
-			object->position = Vector3::Transform(object->position - position, rotation);
 	
 			Quaternion rotationInverted;
 			rotation.Inverse(rotationInverted);	
 			Quaternion localRotation = object->rotation * rotationInverted;
 			object->rotation = localRotation;
+
+			object->position = Vector3::Transform(object->position - position, rotationInverted);
 		}
 	}
 }

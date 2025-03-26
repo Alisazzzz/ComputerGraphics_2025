@@ -18,7 +18,7 @@
 #include "FPSCamera.h"
 
 #include "KatamariBall.h"
-#include "DiffuseLight.h"
+#include "Lighting.h"
 
 class Game;
 
@@ -34,12 +34,13 @@ private:
 	FPSCamera* mainFPS;
 	Game* game;
 
-	int objectsCount = 10;
+	int objectsCount = 20;
 	Vector3 ruMapCorner = Vector3(20, 0, 20);
-	Vector3 ldMapCorner = Vector3(0, 0, 0);
+	Vector3 ldMapCorner = Vector3(-20, 0, -20);
 
 	KatamariBall* ball;
-	DiffuseLight* light;
+	DirectionalLight* light;
+	PointLight* pntLight;
 
 public:
 	std::vector<Pickable*> pickables;

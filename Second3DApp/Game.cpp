@@ -74,11 +74,11 @@ void Game::Initialize(int screenWidthInput, int screenHeightInput)
 
 	std::vector<DirectX::XMFLOAT4> lines;
 
-	for (int i = 0; i < 200; i++) {
-		lines.push_back(Vector4(-150.0f, 0.0f, -50.0f + i, 1.0f));
-		lines.push_back(Vector4(0.5f, 0.5f, 0.5f, 1.0f));
-		lines.push_back(Vector4(150.0f, 0.0f, -50.0f + i, 1.0f));
-		lines.push_back(Vector4(0.5f, 0.5f, 0.5f, 1.0f));
+	for (int i = 0; i <= 400; i++) {
+		lines.push_back(Vector4(-100.0f, 0.0f, -100.0f + i, 1.0f));
+		lines.push_back(Vector4(1.0f, 1.0f, 1.0f, 1.0f));
+		lines.push_back(Vector4(100.0f, 0.0f, -100.0f + i, 1.0f));
+		lines.push_back(Vector4(1.0f, 1.0f, 1.0f, 1.0f));
 	}
 
 	LinelistComponent* linesTriangle1 = new LinelistComponent(getInstance());
@@ -90,19 +90,8 @@ void Game::Initialize(int screenWidthInput, int screenHeightInput)
 	linesTriangle2->transforms.rotate = Matrix::CreateRotationY(DirectX::XM_PIDIV2);
 	components.push_back(linesTriangle2);
 
-	/*
-	strides = { 24 };
-	offsets = { 0 };
-
-	std::vector<TexturedMesh> sword = MeshGenerator::getInstance()->getFromFile("./Models/Rose/Red_rose_SF.obj");
-	for (TexturedMesh mesh : sword) {
-		TexturedTriangle* swordPart = new TexturedTriangle(getInstance());
-		swordPart->Initialize(L"./Shaders/MySecondShader.hlsl", mesh.points, mesh.indeces, strides, offsets, false, mesh.texturePath);
-		//swordPart->transforms.scale = Matrix::CreateScale(Vector3(0.5f, 0.5f, 0.5f));
-		swordPart->transforms.rotate = Matrix::CreateRotationX(DirectX::XM_PI);
-		components.push_back(swordPart);
-	}
-	*/
+	pntLight = nullptr;
+	dirLight = nullptr;
 }
 
 void Game::CreateBackBuffer()
@@ -149,7 +138,7 @@ void Game::CreateDepthBuffer()
 
 void Game::Draw()
 {
-	float color[] = { 0.3f, 0.3f, 0.3f, 1.0f };
+	float color[] = { 0.59f, 0.77f, 0.78f, 1.0f };
 	context->ClearRenderTargetView(renderView, color);
 
 	context->OMSetRenderTargets(1, &renderView, depthStencilView);
@@ -204,6 +193,9 @@ int Game::Exit()
 
 	backBuffer->Release();
 	renderView->Release();
+
+	if (pntLight != nullptr) delete pntLight;
+	if (dirLight != nullptr) delete dirLight;
 
 	std::cout << "Hello World!\n";
 	return 0;
