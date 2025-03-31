@@ -16,6 +16,27 @@ float KatamariBall::Inertia(float speed, bool moving)
 	return resultSpeed;
 }
 
+void KatamariBall::Jump(float deltaTime)
+{
+	if (a > 0.0f && !isFalling) {
+		a -= 0.01;
+		jumpHeight -= a;
+	}
+	else if (a <= 0.0f && !isFalling) {
+		isFalling = true;
+	}
+
+	if (isFalling) {
+		a += 0.01;
+		jumpHeight += a;
+		if (a == heightMax) {
+			jumpHeight = 0.0f;
+			isFalling = false;
+			isJumping = false;
+		}
+	}
+}
+
 void KatamariBall::MoveKatamari(float deltaTime)
 {
 	Vector3 forward = mainOrbit->target - mainOrbit->lookPoint;
@@ -29,6 +50,18 @@ void KatamariBall::MoveKatamari(float deltaTime)
 
 	if (game->inputDevice->IsKeyDown(Keys::W)) { moveDirection += forward; movingForward = true; }
 	if (game->inputDevice->IsKeyDown(Keys::S)) { moveDirection -= forward; movingForward = false; }
+
+	//Jump
+	if (game->inputDevice->IsKeyDown(Keys::Space)) { 
+		if (!isJumping) {
+			isJumping = true;
+		}
+	}
+
+	if (isJumping) {
+		Jump(deltaTime);
+		position.y = -1.0f + jumpHeight;
+	}
 
 	if ((moveDirection.x != 0) || (moveDirection.y != 0) || (moveDirection.z != 0)) {
 		moveDirection.Normalize();
@@ -83,6 +116,8 @@ KatamariBall::KatamariBall(Game* gameInput)
 	mainOrbit->Initialize(orbit, position - orbit, position);
 	game->activeCamera = mainOrbit;
 	game->components.push_back(mainOrbit);
+
+
 }
 
 void KatamariBall::CollisionCheck()

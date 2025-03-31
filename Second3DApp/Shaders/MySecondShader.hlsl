@@ -51,7 +51,7 @@ cbuffer LightBuf : register(b1)
 {
     Material material;
     DirectionalLight dirLight;
-    PointLight pntLight;
+    PointLight pntLights[8];
     float4 spectatorLocation;
 };
 
@@ -147,8 +147,11 @@ float4 PSMain(PS_IN input) : SV_Target
     DirectionalLightComputing(material, dirLight, input.normal, vector2spectator, ambient, diffuse, specular);
     appliedLight = appliedLight + ambient.xyz + diffuse.xyz + specular.xyz;
     
-    PointLightComputing(material, pntLight, input.worldPosition, input.normal, vector2spectator, ambient, diffuse, specular);
-    appliedLight = appliedLight + ambient.xyz + diffuse.xyz + specular.xyz;
+    for (int i = 0; i < 8; i++)
+    {
+        PointLightComputing(material, pntLights[i], input.worldPosition, input.normal, vector2spectator, ambient, diffuse, specular);
+        appliedLight = appliedLight + ambient.xyz + diffuse.xyz + specular.xyz;
+    }
     
     float3 finalColor = texColor * appliedLight;
     

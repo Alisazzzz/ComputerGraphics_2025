@@ -51,9 +51,16 @@ private:
 	float radius = 1.0f;
 	bool movingForward = true;
 
+	bool isJumping = false;
+	bool isFalling = false;
+	float a = 0.21f;
+	float heightMax = 0.21f;
+	float jumpHeight = 0.0f;
+
 	std::vector<Pickable*> collected;
 
 	float Inertia(float speed, bool moving);
+	void Jump(float deltaTime);
 	void MoveKatamari(float deltaTime);
 	void PutUpKatamari(float deltaTime);
 
