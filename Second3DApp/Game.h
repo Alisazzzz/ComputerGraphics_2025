@@ -76,7 +76,7 @@ public:
 	//OrbitCamera* camm;
 	FPSCamera* mainFPS;
 
-	PointLight* pntLight;
+	std::vector<PointLight*> pntLights;
 	DirectionalLight* dirLight;
 
 	void Initialize(int screenWidthInput, int screenHeightInput);

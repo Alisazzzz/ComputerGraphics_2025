@@ -12,6 +12,18 @@ void Katamari::Initialize()
 	std::vector<UINT> strides = { 32 };
 	std::vector<UINT> offsets = { 0 };
 
+	TexturedTriangle* floor = new TexturedTriangle(game);
+	Material* floorMaterial = new Material{
+		Vector4(0.2f, 0.2f, 0.2f, 0.2f),
+		Vector4(0.2f, 0.2f, 0.2f, 0.2f),
+		Vector4(0.55f, 0.55f, 0.55f, 1.00f)
+	};
+
+	TexturedMesh floorMesh = MeshGenerator::getInstance()->getFromFile("./Models/Floor/floor.obj")[0];
+	floor->Initialize(L"./Shaders/MySecondShader.hlsl", floorMesh.points, floorMesh.indeces, false, floorMesh.texturePath, floorMaterial);
+	floor->transforms.move = Matrix::CreateTranslation(Vector3(0.0f, 0.25f, 0.0f));
+	game->components.push_back(floor);
+
 	RandomObjectGeneration();
 
 	ball = new KatamariBall(game);
@@ -23,17 +35,15 @@ void Katamari::Initialize()
 		Vector4(0.5f, 0.5f, 0.5f, 0.01f),
 		Vector4(0.0f, 1.0f, 1.0f, 1.0f)	
 	};
-	game->dirLight = light;
 
-	pntLight = new PointLight{
-		Vector4(1.5f, 1.0f, 1.0f, 1.0f),
-		Vector4(4.0f, 2.0f, 2.0f, 1.0f),
-		Vector4(2.5f, 0.5f, 0.5f, 4.0f),
-		Vector3(0.0f, 5.0f, 0.0f),
-		30.0f,
-		Vector4(0.5f, 0.1f, 0.0f, 1.0f)
+	DirectionalLight* lightNull = new DirectionalLight{
+		Vector4(0.0f, 0.0f, 0.0f, 1.0f),
+		Vector4(0.0f, 0.0f, 0.0f, 1.0f),
+		Vector4(0.0f, 0.0f, 0.0f, 0.01f),
+		Vector4(0.0f, 1.0f, 1.0f, 1.0f)
 	};
-	game->pntLight = pntLight;
+
+	game->dirLight = lightNull;
 }
 
 void Katamari::RandomObjectGeneration()
@@ -51,13 +61,13 @@ void Katamari::RandomObjectGeneration()
 	models.push_back(MeshGenerator::getInstance()->getFromFile("./Models/Rose/Red_rose_SF.obj"));
 	extents.push_back(Vector3(0.05f, 1.1f, 0.05f));
 
-	models.push_back(MeshGenerator::getInstance()->getFromFile("./Models/PinkRose/Pink_rose_retopo_SF.obj"));
-	extents.push_back(Vector3(0.2f, 0.2f, 0.2f));
+	//models.push_back(MeshGenerator::getInstance()->getFromFile("./Models/PinkRose/Pink_rose_retopo_SF.obj"));
+	//extents.push_back(Vector3(0.2f, 0.2f, 0.2f));
 
 	uniform_int_distribution<> modelDist(0, models.size()-1);
 
 	for (int i = 0; i < objectsCount; i++) {
-		Vector3 position = Vector3(distX(gen), 0.0f, distZ(gen));
+		Vector3 position = Vector3(distX(gen), -0.25f, distZ(gen));
 		float rotationY = rotY(gen);
 		std::cout << rotationY << std::endl;
 

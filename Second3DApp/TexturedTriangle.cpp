@@ -1,4 +1,4 @@
-#include "TexturedTriangle.h"
+ #include "TexturedTriangle.h"
 #include "Game.h"
 
 void TexturedTriangle::Initialize(LPCWSTR shaderSource, 
@@ -214,8 +214,11 @@ void TexturedTriangle::Update()
 	memcpy(res.pData, &constData, sizeof(ConstData));
 	game->context->Unmap(constBuffer, 0);
 
-	if (game->pntLight != nullptr)
-		lightData.point = *(game->pntLight);
+	if (game->pntLights.size() != 0) {
+		for (int i = 0; i < game->pntLights.size(); i++) {
+			lightData.points[i] = *(game->pntLights[i]);
+		};
+	};
 
 	if (game->dirLight != nullptr)
 		lightData.directional = *(game->dirLight);

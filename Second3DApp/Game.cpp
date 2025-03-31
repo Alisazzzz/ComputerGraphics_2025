@@ -75,9 +75,9 @@ void Game::Initialize(int screenWidthInput, int screenHeightInput)
 	std::vector<DirectX::XMFLOAT4> lines;
 
 	for (int i = 0; i <= 400; i++) {
-		lines.push_back(Vector4(-100.0f, 0.0f, -100.0f + i, 1.0f));
+		lines.push_back(Vector4(-100.0f, 1.0f, -100.0f + i, 1.0f));
 		lines.push_back(Vector4(1.0f, 1.0f, 1.0f, 1.0f));
-		lines.push_back(Vector4(100.0f, 0.0f, -100.0f + i, 1.0f));
+		lines.push_back(Vector4(100.0f, 1.0f, -100.0f + i, 1.0f));
 		lines.push_back(Vector4(1.0f, 1.0f, 1.0f, 1.0f));
 	}
 
@@ -90,7 +90,7 @@ void Game::Initialize(int screenWidthInput, int screenHeightInput)
 	linesTriangle2->transforms.rotate = Matrix::CreateRotationY(DirectX::XM_PIDIV2);
 	components.push_back(linesTriangle2);
 
-	pntLight = nullptr;
+	pntLights = {};
 	dirLight = nullptr;
 }
 
@@ -194,7 +194,10 @@ int Game::Exit()
 	backBuffer->Release();
 	renderView->Release();
 
-	if (pntLight != nullptr) delete pntLight;
+	if (pntLights.size() != 0) {
+		for (int i = 0; i < pntLights.size(); i++)
+			delete pntLights[i];
+	}
 	if (dirLight != nullptr) delete dirLight;
 
 	std::cout << "Hello World!\n";

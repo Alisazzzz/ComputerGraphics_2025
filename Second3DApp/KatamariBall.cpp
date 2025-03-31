@@ -37,6 +37,41 @@ void KatamariBall::Jump(float deltaTime)
 	}
 }
 
+void KatamariBall::AddingLights()
+{
+	std::random_device rd;
+	std::mt19937 gen(rd());
+
+	std::uniform_real_distribution<> distTheta(0, 2 * DirectX::XM_PI);
+	std::uniform_real_distribution<> distPhi(0, DirectX::XM_PI);
+	std::uniform_real_distribution<> distColor(0.0f, 2.0f);
+
+	for (int i = 0; i < 8; ++i) {
+		float theta = distTheta(gen);
+		float phi = distPhi(gen);
+		float R = radius + 1.0f;
+		Vector3 lightPosition = Vector3(R * sin(phi) * cos(theta), R * sin(phi) * sin(theta), R * cos(phi));
+		
+		float colorR = distColor(gen);
+		float colorG = distColor(gen);
+		float colorB = distColor(gen);
+		Vector4 lightAmbient = Vector4(colorR, colorG, colorB, 1.0f);
+		Vector4 lightDiffuse = Vector4(colorR, colorG, colorB, 1.0f);
+		Vector4 lightSpecular = Vector4(colorR, colorG, colorB, 4.0f);
+
+		PointLight* point = new PointLight{
+			lightAmbient,
+			lightDiffuse,
+			lightSpecular,
+			lightPosition,
+			2.0f,
+			Vector4(0.5f, 0.2f, 0.0f, 1.0f),
+		};
+		lightsOrbits.push_back(lightPosition);
+		game->pntLights.push_back(point);
+	}
+}
+
 void KatamariBall::MoveKatamari(float deltaTime)
 {
 	Vector3 forward = mainOrbit->target - mainOrbit->lookPoint;
@@ -117,7 +152,7 @@ KatamariBall::KatamariBall(Game* gameInput)
 	game->activeCamera = mainOrbit;
 	game->components.push_back(mainOrbit);
 
-
+	AddingLights();
 }
 
 void KatamariBall::CollisionCheck()
@@ -161,6 +196,10 @@ void KatamariBall::Update()
 			part->transforms.move = Matrix::CreateTranslation(newPosition + position);
 			part->transforms.rotate = Matrix::CreateFromQuaternion(object->rotation * rotation);
 		}
+	}
+
+	for (int i = 0; i < game->pntLights.size(); i++) {
+		game->pntLights[i]->position = position + Vector3::Transform(lightsOrbits[i], rotation);
 	}
 }
 

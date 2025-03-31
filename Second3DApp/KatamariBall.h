@@ -58,9 +58,11 @@ private:
 	float jumpHeight = 0.0f;
 
 	std::vector<Pickable*> collected;
+	std::vector<Vector3> lightsOrbits;
 
 	float Inertia(float speed, bool moving);
 	void Jump(float deltaTime);
+	void AddingLights();
 	void MoveKatamari(float deltaTime);
 	void PutUpKatamari(float deltaTime);
 
