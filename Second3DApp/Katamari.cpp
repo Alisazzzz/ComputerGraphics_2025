@@ -16,7 +16,7 @@ void Katamari::Initialize()
 	Material* floorMaterial = new Material{
 		Vector4(0.2f, 0.2f, 0.2f, 0.2f),
 		Vector4(0.2f, 0.2f, 0.2f, 0.2f),
-		Vector4(0.55f, 0.55f, 0.55f, 1.00f)
+		Vector4(0.0f, 0.1f, 0.0f, 1.00f)
 	};
 
 	TexturedMesh floorMesh = MeshGenerator::getInstance()->getFromFile("./Models/Floor/floor.obj")[0];
@@ -30,9 +30,9 @@ void Katamari::Initialize()
 	mainOrbit = ball->getCamera();
 
 	light = new DirectionalLight{
-		Vector4(1.8f, 1.8f, 1.8f, 1.0f),
-		Vector4(3.6f, 3.6f, 3.6f, 1.0f),
-		Vector4(0.5f, 0.5f, 0.5f, 0.01f),
+		Vector4(0.8f, 0.8f, 0.8f, 1.0f),
+		Vector4(0.9f, 0.9f, 0.9f, 1.0f),
+		Vector4(0.5f, 0.5f, 0.5f, 0.1f),
 		Vector4(0.0f, 1.0f, 1.0f, 1.0f)	
 	};
 
@@ -43,7 +43,7 @@ void Katamari::Initialize()
 		Vector4(0.0f, 1.0f, 1.0f, 1.0f)
 	};
 
-	game->dirLight = lightNull;
+	game->dirLight = light;
 }
 
 void Katamari::RandomObjectGeneration()

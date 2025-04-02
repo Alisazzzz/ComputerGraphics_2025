@@ -64,8 +64,8 @@ void KatamariBall::AddingLights()
 			lightDiffuse,
 			lightSpecular,
 			lightPosition,
-			2.0f,
-			Vector4(0.5f, 0.2f, 0.0f, 1.0f),
+			1.3f,
+			Vector4(0.6f, 0.9f, 0.1f, 1.0f),
 		};
 		lightsOrbits.push_back(lightPosition);
 		game->pntLights.push_back(point);

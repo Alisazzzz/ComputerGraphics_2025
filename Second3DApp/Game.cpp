@@ -76,9 +76,9 @@ void Game::Initialize(int screenWidthInput, int screenHeightInput)
 
 	for (int i = 0; i <= 400; i++) {
 		lines.push_back(Vector4(-100.0f, 1.0f, -100.0f + i, 1.0f));
-		lines.push_back(Vector4(1.0f, 1.0f, 1.0f, 1.0f));
+		lines.push_back(Vector4(0.1f, 0.1f, 0.1f, 1.0f));
 		lines.push_back(Vector4(100.0f, 1.0f, -100.0f + i, 1.0f));
-		lines.push_back(Vector4(1.0f, 1.0f, 1.0f, 1.0f));
+		lines.push_back(Vector4(0.1f, 0.1f, 0.1f, 1.0f));
 	}
 
 	LinelistComponent* linesTriangle1 = new LinelistComponent(getInstance());
@@ -138,7 +138,9 @@ void Game::CreateDepthBuffer()
 
 void Game::Draw()
 {
-	float color[] = { 0.59f, 0.77f, 0.78f, 1.0f };
+	//float color[] = { 0.59f, 0.77f, 0.78f, 1.0f };
+	//float color[] = { 0.84f, 0.47f, 0.65f, 1.0f };
+	float color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	context->ClearRenderTargetView(renderView, color);
 
 	context->OMSetRenderTargets(1, &renderView, depthStencilView);
