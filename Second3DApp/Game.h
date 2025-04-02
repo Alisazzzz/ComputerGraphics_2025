@@ -17,7 +17,7 @@
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "dxguid.lib")
 
-#include "GameComponent.h"
+#include "TexturedTriangle.h"
 #include "InputDevice.h"
 #include "Camera.h"
 #include "FPSCamera.h"
@@ -32,6 +32,8 @@ private:
 	static Game* gameInstance;
 	Game() {};
 
+	int SHADOW_MAP_SIZE = 1024;
+
 public:
 
 	bool isPong = false;
@@ -40,6 +42,7 @@ public:
 
 	DisplayWin32* window;
 	std::vector<GameComponent*> components;
+	std::vector<TexturedTriangle*> meshes;
 	InputDevice* inputDevice;
 
 	MSG msg = {};
@@ -58,6 +61,13 @@ public:
 
 	ID3D11Texture2D* depthStencilBuffer;
 	ID3D11DepthStencilView* depthStencilView;
+
+	//shadows
+	ID3D11Texture2D* shadowMapTexture;
+	ID3D11DepthStencilView* shadowMapDSV;
+	ID3D11ShaderResourceView* shadowMapSRV;
+	ID3D11SamplerState* shadowSampler;
+	Matrix lightViewProjection;
 
 	float totalTime = 0;
 	unsigned int frameCount = 0;
@@ -82,11 +92,14 @@ public:
 	void Initialize(int screenWidthInput, int screenHeightInput);
 	void CreateBackBuffer();
 	void CreateDepthBuffer();
+	void CreateShadowMapResources();
 
 	void Draw();
 	void Update();
 	void EndFrame();
 	int Exit();
+	void UpdateLight();
+	void RenderShadowMap();
 
 	void PrepareFrame();
 

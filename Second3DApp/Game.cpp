@@ -68,7 +68,6 @@ void Game::Initialize(int screenWidthInput, int screenHeightInput)
 
 	CreateDepthBuffer();
 
-	
 	std::vector<UINT> strides = { 32 };
 	std::vector<UINT> offsets = { 0 };
 
@@ -90,8 +89,14 @@ void Game::Initialize(int screenWidthInput, int screenHeightInput)
 	linesTriangle2->transforms.rotate = Matrix::CreateRotationY(DirectX::XM_PIDIV2);
 	components.push_back(linesTriangle2);
 
+	//lights and shadows
 	pntLights = {};
 	dirLight = nullptr;
+
+	shadowMapTexture = nullptr;
+	shadowMapDSV = nullptr;
+	shadowMapSRV = nullptr;
+	shadowSampler = nullptr;
 }
 
 void Game::CreateBackBuffer()
@@ -134,6 +139,55 @@ void Game::CreateDepthBuffer()
 	device->CreateDepthStencilState(&depthStencilDesc, &depthStencilState);
 	
 	context->OMSetDepthStencilState(depthStencilState, 1);
+}
+
+void Game::CreateShadowMapResources()
+{
+	D3D11_TEXTURE2D_DESC shadowMapDesc;
+	ZeroMemory(&shadowMapDesc, sizeof(shadowMapDesc));
+	shadowMapDesc.Width = SHADOW_MAP_SIZE;
+	shadowMapDesc.Height = SHADOW_MAP_SIZE;
+	shadowMapDesc.MipLevels = 1;
+	shadowMapDesc.ArraySize = 1;
+	shadowMapDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
+	shadowMapDesc.SampleDesc.Count = 1;
+	shadowMapDesc.SampleDesc.Quality = 0;
+	shadowMapDesc.Usage = D3D11_USAGE_DEFAULT;
+	shadowMapDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+	shadowMapDesc.CPUAccessFlags = 0;
+	shadowMapDesc.MiscFlags = 0;
+	device->CreateTexture2D(&shadowMapDesc, nullptr, &shadowMapTexture);
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC dsvDesc;
+	ZeroMemory(&dsvDesc, sizeof(dsvDesc));
+	dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	dsvDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	dsvDesc.Texture2D.MipSlice = 0;
+	device->CreateDepthStencilView(shadowMapTexture, &dsvDesc, &shadowMapDSV);
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	ZeroMemory(&srvDesc, sizeof(srvDesc));
+	srvDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = 1;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	device->CreateShaderResourceView(shadowMapTexture, &srvDesc, &shadowMapSRV);
+
+	D3D11_SAMPLER_DESC shadowSamplerDesc;
+	ZeroMemory(&shadowSamplerDesc, sizeof(shadowSamplerDesc));
+	shadowSamplerDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+	shadowSamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+	shadowSamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+	shadowSamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+	shadowSamplerDesc.BorderColor[0] = 1.0f;
+	shadowSamplerDesc.BorderColor[1] = 1.0f;
+	shadowSamplerDesc.BorderColor[2] = 1.0f;
+	shadowSamplerDesc.BorderColor[3] = 1.0f;
+	shadowSamplerDesc.MinLOD = 0;
+	shadowSamplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	shadowSamplerDesc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
+	shadowSamplerDesc.MaxAnisotropy = 1;
+	device->CreateSamplerState(&shadowSamplerDesc, &shadowSampler);
 }
 
 void Game::Draw()
@@ -204,6 +258,51 @@ int Game::Exit()
 
 	std::cout << "Hello World!\n";
 	return 0;
+}
+
+void Game::UpdateLight()
+{
+	Vector3 sceneCenter(0.0f, 0.0f, 0.0f);
+	Vector3 lightCameraPos = sceneCenter - dirLight->direction * 50.0f;
+
+	Matrix lightView = Matrix::CreateLookAt(lightCameraPos, sceneCenter, Vector3::Up);
+
+	float shadowArea = 50.0f;
+	Matrix lightProjection = Matrix::CreateOrthographic(shadowArea, shadowArea, 0.1f, 100.0f);
+
+	lightViewProjection = lightView * lightProjection;
+}
+
+void Game::RenderShadowMap()
+{
+	D3D11_VIEWPORT oldViewport;
+	UINT numViewports = 1;
+	context->RSGetViewports(&numViewports, &oldViewport);
+
+	D3D11_VIEWPORT shadowViewport;
+	shadowViewport.Width = static_cast<float>(SHADOW_MAP_SIZE);
+	shadowViewport.Height = static_cast<float>(SHADOW_MAP_SIZE);
+	shadowViewport.MinDepth = 0.0f;
+	shadowViewport.MaxDepth = 1.0f;
+	shadowViewport.TopLeftX = 0.0f;
+	shadowViewport.TopLeftY = 0.0f;
+	context->RSSetViewports(1, &shadowViewport);
+
+	context->ClearDepthStencilView(shadowMapDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+	context->OMSetRenderTargets(0, nullptr, shadowMapDSV);
+
+	for (TexturedTriangle* mesh : meshes)
+	{
+		// Устанавливаем шейдер для shadow map (см. ниже)
+		// Устанавливаем матрицу преобразования (world * lightViewProjection)
+		//Matrix worldViewProj = mesh->transforms * lightViewProjection;
+		// Передаем матрицу в шейдер
+		// Рендерим mesh
+		//mesh.Render(context);
+	}
+
+	context->RSSetViewports(1, &oldViewport);
 }
 
 void Game::PrepareFrame() 
@@ -318,5 +417,6 @@ void Game::KatamariGame()
 	isKatamari = true;
 	Katamari* katamariGame = Katamari::getInstance();
 	CreateDepthBuffer();
+	CreateShadowMapResources();
 	katamariGame->Initialize();
 }
