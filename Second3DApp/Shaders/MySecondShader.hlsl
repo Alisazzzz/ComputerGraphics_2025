@@ -107,6 +107,8 @@ void PointLightComputing(Material material, PointLight light, float3 position, f
     
     //attentuation
     float att = 1 / dot(light.attentuation.xyz, float3(1.0f, distance2light, pow(distance2light, 2)));
+    att = max(0.0f, 1 - smoothstep(0, light.range, distance2light));
+    ambient *= att;
     diffuse *= att;
     specular *= att;
 };

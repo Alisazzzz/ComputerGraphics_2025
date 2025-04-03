@@ -34,6 +34,8 @@ private:
 
 	int SHADOW_MAP_SIZE = 1024;
 
+	bool started = false;
+
 public:
 
 	bool isPong = false;

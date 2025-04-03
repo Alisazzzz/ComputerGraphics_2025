@@ -377,11 +377,13 @@ void Game::MessageHandler()
 
 void Game::MouseInputHandler(Vector2 mouseInput)
 {
-	activeCamera->CameraRotate(mouseInput);
+	//if (started)
+		activeCamera->CameraRotate(mouseInput);
 }
 
 void Game::Run()
 {
+	started = true;
 	PrevTime = std::chrono::steady_clock::now();
 	totalTime = 0;
 	frameCount = 0;
@@ -417,6 +419,5 @@ void Game::KatamariGame()
 	isKatamari = true;
 	Katamari* katamariGame = Katamari::getInstance();
 	CreateDepthBuffer();
-	CreateShadowMapResources();
 	katamariGame->Initialize();
 }

@@ -21,7 +21,7 @@ void Katamari::Initialize()
 
 	TexturedMesh floorMesh = MeshGenerator::getInstance()->getFromFile("./Models/Floor/floor.obj")[0];
 	floor->Initialize(L"./Shaders/MySecondShader.hlsl", floorMesh.points, floorMesh.indeces, false, floorMesh.texturePath, floorMaterial);
-	floor->transforms.move = Matrix::CreateTranslation(Vector3(0.0f, 0.25f, 0.0f));
+	floor->transforms.move = Matrix::CreateTranslation(Vector3(0.0f, 0.0f, 0.0f));
 	game->components.push_back(floor);
 
 	RandomObjectGeneration();
@@ -30,8 +30,8 @@ void Katamari::Initialize()
 	mainOrbit = ball->getCamera();
 
 	light = new DirectionalLight{
-		Vector4(0.8f, 0.8f, 0.8f, 1.0f),
 		Vector4(0.9f, 0.9f, 0.9f, 1.0f),
+		Vector4(1.0f, 1.1f, 1.1f, 1.0f),
 		Vector4(0.5f, 0.5f, 0.5f, 0.1f),
 		Vector4(0.0f, 1.0f, 1.0f, 1.0f)	
 	};
@@ -61,8 +61,8 @@ void Katamari::RandomObjectGeneration()
 	models.push_back(MeshGenerator::getInstance()->getFromFile("./Models/Rose/Red_rose_SF.obj"));
 	extents.push_back(Vector3(0.05f, 1.1f, 0.05f));
 
-	//models.push_back(MeshGenerator::getInstance()->getFromFile("./Models/PinkRose/Pink_rose_retopo_SF.obj"));
-	//extents.push_back(Vector3(0.2f, 0.2f, 0.2f));
+	models.push_back(MeshGenerator::getInstance()->getFromFile("./Models/PinkRose/Pink_rose_retopo_SF.obj"));
+	extents.push_back(Vector3(0.2f, 0.2f, 0.2f));
 
 	uniform_int_distribution<> modelDist(0, models.size()-1);
 

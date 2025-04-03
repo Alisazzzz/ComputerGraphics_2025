@@ -19,7 +19,7 @@ float KatamariBall::Inertia(float speed, bool moving)
 void KatamariBall::Jump(float deltaTime)
 {
 	if (a > 0.0f && !isFalling) {
-		a -= 0.01;
+		a -= 0.6 * deltaTime;
 		jumpHeight -= a;
 	}
 	else if (a <= 0.0f && !isFalling) {
@@ -27,9 +27,9 @@ void KatamariBall::Jump(float deltaTime)
 	}
 
 	if (isFalling) {
-		a += 0.01;
+		a += 0.6 * deltaTime;
 		jumpHeight += a;
-		if (a == heightMax) {
+		if (a >= heightMax) {
 			jumpHeight = 0.0f;
 			isFalling = false;
 			isJumping = false;
@@ -65,7 +65,7 @@ void KatamariBall::AddingLights()
 			lightSpecular,
 			lightPosition,
 			1.3f,
-			Vector4(0.6f, 0.9f, 0.1f, 1.0f),
+			Vector4(0.6f, 0.9f, 1.0f, 1.0f),
 		};
 		lightsOrbits.push_back(lightPosition);
 		game->pntLights.push_back(point);
