@@ -35,6 +35,7 @@
     <ClCompile Include="OrthoCamera.cpp" />
     <ClCompile Include="PlanetSystem.cpp" />
     <ClCompile Include="Pong.cpp" />
+    <ClCompile Include="ShadowMap.cpp" />
     <ClCompile Include="TexturedTriangle.cpp" />
     <ClCompile Include="TriangleComponent.cpp" />
   </ItemGroup>
@@ -42,10 +43,14 @@
     <FxCompile Include="Shaders\MySecondShader.hlsl">
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">VSMain</EntryPointName>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">VSMain</EntryPointName>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.1</ShaderModel>
     </FxCompile>
     <FxCompile Include="Shaders\MyVeryFirstShader.hlsl">
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">VSMain</EntryPointName>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">VSMain</EntryPointName>
+    </FxCompile>
+    <FxCompile Include="Shaders\ShadowMapShader.hlsl">
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">VSMain</EntryPointName>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
@@ -66,6 +71,7 @@
     <ClInclude Include="OrthoCamera.h" />
     <ClInclude Include="PlanetSystem.h" />
     <ClInclude Include="Pong.h" />
+    <ClInclude Include="ShadowMap.h" />
     <ClInclude Include="TexturedTriangle.h" />
     <ClInclude Include="TriangleComponent.h" />
     <ClInclude Include="Vertex.h" />

@@ -1,7 +1,69 @@
  #include "TexturedTriangle.h"
 #include "Game.h"
 
-void TexturedTriangle::Initialize(LPCWSTR shaderSource, 
+void TexturedTriangle::CreateShadowShaders()
+{
+	ID3DBlob* errorVertexCode = nullptr;
+	HRESULT res = D3DCompileFromFile(L"./Shaders/ShadowMapShader.hlsl",
+		nullptr /*macros*/,
+		nullptr /*include*/,
+		"VSMain",
+		"vs_5_0",
+		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+		0,
+		&vertexByteCode_shadows,
+		&errorVertexCode);
+	game->device->CreateVertexShader(
+		vertexByteCode_shadows->GetBufferPointer(),
+		vertexByteCode_shadows->GetBufferSize(),
+		nullptr, &vertexShader_shadows);
+
+
+	ID3DBlob* errorPixelCode = nullptr;
+	res = D3DCompileFromFile(L"./Shaders/ShadowMapShader.hlsl",
+		nullptr /*macros*/,
+		nullptr /*include*/,
+		"PSMain",
+		"ps_5_0",
+		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+		0,
+		&pixelByteCode_shadows,
+		&errorPixelCode);
+	game->device->CreatePixelShader(
+		pixelByteCode_shadows->GetBufferPointer(),
+		pixelByteCode_shadows->GetBufferSize(),
+		nullptr, &pixelShader_shadows);
+
+	D3D11_SAMPLER_DESC shadowSamplerDesc;
+	ZeroMemory(&shadowSamplerDesc, sizeof(shadowSamplerDesc));
+
+	shadowSamplerDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
+	shadowSamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+	shadowSamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+	shadowSamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+	shadowSamplerDesc.BorderColor[0] = 0;
+	shadowSamplerDesc.BorderColor[1] = 0;
+	shadowSamplerDesc.BorderColor[2] = 0;
+	shadowSamplerDesc.BorderColor[3] = 0;
+	shadowSamplerDesc.MinLOD = 0;
+	shadowSamplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	shadowSamplerDesc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
+	shadowSamplerDesc.MaxAnisotropy = 1;
+	shadowSamplerDesc.MipLODBias = 0.0f;
+
+	game->device->CreateSamplerState(&shadowSamplerDesc, &shadowSampler);
+
+	CD3D11_RASTERIZER_DESC rastDesc = {};
+	rastDesc.CullMode = D3D11_CULL_FRONT;
+	rastDesc.FillMode =  D3D11_FILL_SOLID /*D3D11_FILL_WIREFRAME*/;
+	rastDesc.DepthBias = 20000;
+	rastDesc.SlopeScaledDepthBias = 1.0f;
+	rastDesc.DepthBiasClamp = 0.0f;
+
+	res = game->device->CreateRasterizerState(&rastDesc, &rastState_shadows);
+}
+
+void TexturedTriangle::Initialize(LPCWSTR shaderSource,
 	std::vector<Vertex> pointsInput, std::vector<int> indecesInput, 
 	bool is2DInput, std::wstring texturePath, Material* materialInput)
 {
@@ -189,11 +251,32 @@ void TexturedTriangle::Draw()
 	game->context->PSSetConstantBuffers(1, 1, &lightBuffer);
 
 	game->context->PSSetShaderResources(0, 1, &textureView);
-	game->context->PSSetSamplers(0, 1, &samplerState);
+	game->context->PSSetSamplers(0, 1, &samplerState);	
+	
+	shadowsResource = game->dirLightShadows->GetShadowMapDSV();
+	game->context->PSSetShaderResources(1, 1, &shadowsResource);
+	game->context->PSSetSamplers(1, 1, &shadowSampler);
 
 	game->context->IASetVertexBuffers(0, 1, &vb, strides.data(), offsets.data());
 	game->context->VSSetShader(vertexShader, nullptr, 0);
 	game->context->PSSetShader(pixelShader, nullptr, 0);
+
+	game->context->DrawIndexed(indeces.size(), 0, 0);
+}
+
+void TexturedTriangle::LightRender()
+{
+	game->context->RSSetState(rastState_shadows);
+
+	game->context->IASetInputLayout(layout);
+	game->context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	game->context->IASetIndexBuffer(ib, DXGI_FORMAT_R32_UINT, 0);
+
+	game->context->VSSetConstantBuffers(0, 1, &constBuffer);
+
+	game->context->IASetVertexBuffers(0, 1, &vb, strides.data(), offsets.data());
+	game->context->VSSetShader(vertexShader_shadows, nullptr, 0);
+	game->context->PSSetShader(pixelShader_shadows, nullptr, 0);
 
 	game->context->DrawIndexed(indeces.size(), 0, 0);
 }
@@ -226,10 +309,30 @@ void TexturedTriangle::Update()
 	lightData.material = *material;
 	lightData.spectator = Vector4(game->activeCamera->lookPoint.x, game->activeCamera->lookPoint.y, game->activeCamera->lookPoint.z, 1.0f);
 
+	lightData.lightSpace = game->lightView * game->lightProjection;
+	lightData.lightSpace = lightData.lightSpace.Transpose();
+
 	D3D11_MAPPED_SUBRESOURCE resLight = {};
 	game->context->Map(lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &resLight);
 	memcpy(resLight.pData, &lightData, sizeof(LightData));
 	game->context->Unmap(lightBuffer, 0);
+}
+
+void TexturedTriangle::LightUpdate()
+{
+	constData.transformations = transforms.scale * transforms.rotate * transforms.move;
+	constData.transformations = constData.transformations.Transpose();
+
+	constData.view = game->lightView;
+	constData.view = constData.view.Transpose();
+
+	constData.projection = game->lightProjection;
+	constData.projection = constData.projection.Transpose();
+
+	D3D11_MAPPED_SUBRESOURCE res = {};
+	game->context->Map(constBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &res);
+	memcpy(res.pData, &constData, sizeof(ConstData));
+	game->context->Unmap(constBuffer, 0);
 }
 
 void TexturedTriangle::DestroyResources()

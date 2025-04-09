@@ -42,4 +42,5 @@ struct LightData {
 	DirectionalLight directional;
 	PointLight points[8];
 	Vector4 spectator;
+	Matrix lightSpace;
 };

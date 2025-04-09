@@ -142,6 +142,7 @@ KatamariBall::KatamariBall(Game* gameInput)
 	TexturedMesh ballSphere = MeshGenerator::getInstance()->getTexturedSphere(radius, 24, 24);
 	katamariMesh->Initialize(L"./Shaders/MySecondShader.hlsl", ballSphere.points, ballSphere.indeces, false, L"./Textures/Earth_texture.jpeg", mat);
 	game->components.push_back(katamariMesh);
+	game->meshes.push_back(katamariMesh);
 	katamariMesh->transforms.move = Matrix::CreateTranslation(position);
 
 	DirectX::BoundingSphere collision = DirectX::BoundingSphere(position, radius);

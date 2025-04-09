@@ -53,7 +53,14 @@ cbuffer LightBuf : register(b1)
     DirectionalLight dirLight;
     PointLight pntLights[8];
     float4 spectatorLocation;
+    Matrix lightSpace;
 };
+
+Texture2D diffuseMap : register(t0);
+SamplerState samp : register(s0);
+
+Texture2D shadowMap : register(t1);
+SamplerComparisonState shadowSamp : register(s1);
 
 //Lighting functions
 void DirectionalLightComputing(Material material, DirectionalLight light, float3 normal, float3 vector2spectator,
@@ -107,15 +114,42 @@ void PointLightComputing(Material material, PointLight light, float3 position, f
     
     //attentuation
     float att = 1 / dot(light.attentuation.xyz, float3(1.0f, distance2light, pow(distance2light, 2)));
-    att = max(0.0f, 1 - smoothstep(0, light.range, distance2light));
+    att = max(0.0f, 1 - distance2light / light.range);
     ambient *= att;
     diffuse *= att;
     specular *= att;
 };
 
-Texture2D diffuseMap : register(t0);
-SamplerState samp : register(s0);
-
+float CalculateShadow(float4 lightSpacePos)
+{
+    float3 projCoords = lightSpacePos.xyz / lightSpacePos.w;
+    
+    projCoords.xy = projCoords.xy * 0.5 + 0.5;
+    projCoords.y = 1.0 - projCoords.y;
+    
+    float currentDepth = projCoords.z;
+    
+    if (currentDepth > 1.0 || projCoords.x < 0 || projCoords.x > 1 ||
+        projCoords.y < 0 || projCoords.y > 1)
+    {
+        return 1.0;
+    }
+    
+    float shadow = 0.0;
+    float2 texelSize = 1.0 / float2(2048, 2048);
+    
+    for (int x = -1; x <= 1; ++x)
+    {
+        for (int y = -1; y <= 1; ++y)
+        {
+            shadow += shadowMap.SampleCmpLevelZero(shadowSamp, (projCoords.xy + float2(x, y) * texelSize), currentDepth);     
+        }
+    }
+    
+    shadow /= 9.0;
+    
+    return shadow;
+}
 
 //Shaders themselves
 PS_IN VSMain(VS_IN input)
@@ -146,8 +180,12 @@ float4 PSMain(PS_IN input) : SV_Target
     float3 vector2spectator = normalize(spectatorLocation.xyz - input.worldPosition);
     float4 ambient, diffuse, specular;
     
+    float4 lightSpacePos = mul(float4(input.worldPosition, 1.0f), lightSpace);
+    float shadowFactor = CalculateShadow(lightSpacePos);
+    
     DirectionalLightComputing(material, dirLight, input.normal, vector2spectator, ambient, diffuse, specular);
     appliedLight = appliedLight + ambient.xyz + diffuse.xyz + specular.xyz;
+    appliedLight *= shadowFactor;
     
     for (int i = 0; i < 8; i++)
     {

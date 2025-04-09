@@ -23,6 +23,7 @@
 #include "FPSCamera.h"
 #include "OrbitCamera.h"
 #include "Lighting.h"
+#include "ShadowMap.h"
 
 class DisplayWin32;
 
@@ -32,7 +33,7 @@ private:
 	static Game* gameInstance;
 	Game() {};
 
-	int SHADOW_MAP_SIZE = 1024;
+	int SHADOW_MAP_SIZE = 2048;
 
 	bool started = false;
 
@@ -65,11 +66,9 @@ public:
 	ID3D11DepthStencilView* depthStencilView;
 
 	//shadows
-	ID3D11Texture2D* shadowMapTexture;
-	ID3D11DepthStencilView* shadowMapDSV;
-	ID3D11ShaderResourceView* shadowMapSRV;
-	ID3D11SamplerState* shadowSampler;
-	Matrix lightViewProjection;
+	Matrix lightView;
+	Matrix lightProjection;
+	ShadowMapClass* dirLightShadows;
 
 	float totalTime = 0;
 	unsigned int frameCount = 0;
@@ -94,7 +93,6 @@ public:
 	void Initialize(int screenWidthInput, int screenHeightInput);
 	void CreateBackBuffer();
 	void CreateDepthBuffer();
-	void CreateShadowMapResources();
 
 	void Draw();
 	void Update();

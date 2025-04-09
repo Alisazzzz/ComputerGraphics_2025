@@ -64,7 +64,6 @@ private:
 	void Jump(float deltaTime);
 	void AddingLights();
 	void MoveKatamari(float deltaTime);
-	void PutUpKatamari(float deltaTime);
 
 public:
 	KatamariBall(Game* gameInput);

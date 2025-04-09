@@ -44,12 +44,24 @@ private:
 
 	std::vector<int> indeces;
 
-	bool is2D;
+	bool is2D = false;
 
 	ID3D11ShaderResourceView* textureView;
-	ID3D11SamplerState* samplerState;
+	ID3D11SamplerState* samplerState;	
+	
+	ID3D11ShaderResourceView* shadowsResource;
+	ID3D11SamplerState* shadowSampler;
 
 	Material* material;
+	
+	//shadows
+	ID3D11RasterizerState* rastState_shadows;
+
+	ID3D11VertexShader* vertexShader_shadows;
+	ID3DBlob* vertexByteCode_shadows;
+
+	ID3D11PixelShader* pixelShader_shadows;
+	ID3DBlob* pixelByteCode_shadows;
 
 public:
 	bool needMultip = true;
@@ -75,15 +87,27 @@ public:
 
 		constBuffer = nullptr;
 		lightBuffer = nullptr;
+
+		//shadows
+		vertexShader_shadows = nullptr;
+		vertexByteCode_shadows = nullptr;
+		pixelShader_shadows = nullptr;
+		pixelByteCode_shadows = nullptr;
+
+		shadowsResource = nullptr;
+		shadowSampler = nullptr;
 	};
 
 	void Initialize(LPCWSTR shaderSource,
 		std::vector<Vertex> pointsInput, std::vector<int> indecesInput,
 		bool is2DInput, std::wstring texturePath, Material* materialInput);
+	void CreateShadowShaders();
 
 	void Draw();
+	void LightRender();
 
 	void Update();
+	void LightUpdate();
 	void DestroyResources();
 };
 

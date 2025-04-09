@@ -23,6 +23,7 @@ void Katamari::Initialize()
 	floor->Initialize(L"./Shaders/MySecondShader.hlsl", floorMesh.points, floorMesh.indeces, false, floorMesh.texturePath, floorMaterial);
 	floor->transforms.move = Matrix::CreateTranslation(Vector3(0.0f, 0.0f, 0.0f));
 	game->components.push_back(floor);
+	game->meshes.push_back(floor);
 
 	RandomObjectGeneration();
 
@@ -87,6 +88,7 @@ void Katamari::RandomObjectGeneration()
 			modelPart->transforms.rotate = Matrix::CreateFromYawPitchRoll(Vector3(DirectX::XM_PIDIV2, DirectX::XM_PIDIV2, rotationY));
 			modelPart->transforms.move = Matrix::CreateTranslation(position);
 			game->components.push_back(modelPart);
+			game->meshes.push_back(modelPart);
 			modelParts.push_back(modelPart);
 		}
 
