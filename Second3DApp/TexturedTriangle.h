@@ -46,7 +46,6 @@ private:
 
 	bool is2D = false;
 
-	ID3D11ShaderResourceView* textureView;
 	ID3D11SamplerState* samplerState;	
 	
 	ID3D11ShaderResourceView* shadowsResource;
@@ -64,6 +63,8 @@ private:
 	ID3DBlob* pixelByteCode_shadows;
 
 public:
+	ID3D11ShaderResourceView* textureView;
+
 	bool needMultip = true;
 	std::vector<Vertex> points;
 

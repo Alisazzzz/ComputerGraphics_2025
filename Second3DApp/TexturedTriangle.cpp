@@ -338,7 +338,7 @@ void TexturedTriangle::LightUpdate()
 void TexturedTriangle::DestroyResources()
 {
 	layout->Release();
-
+	
 	if (textureView != nullptr)
 		textureView->Release();
 	samplerState->Release();
@@ -353,6 +353,18 @@ void TexturedTriangle::DestroyResources()
 	ib->Release();
 
 	rastState->Release();
+
+	if (shadowSampler != nullptr) {
+		shadowSampler->Release();
+
+		rastState_shadows->Release();
+
+		vertexShader_shadows->Release();
+		vertexByteCode_shadows->Release();
+
+		pixelShader_shadows->Release();
+		pixelByteCode_shadows->Release();
+	};
 
 	if (material != nullptr)
 		delete material;

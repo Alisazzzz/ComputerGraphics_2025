@@ -89,9 +89,18 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Shaders\MyVeryFirstShader.hlsl" />
-    <FxCompile Include="Shaders\MySecondShader.hlsl" />
-    <FxCompile Include="Shaders\ShadowMapShader.hlsl" />
+    <FxCompile Include="Shaders\MySecondShader_withoutLights.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\MyVeryFirstShader.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\MySecondShader.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\ShadowMapShader.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">

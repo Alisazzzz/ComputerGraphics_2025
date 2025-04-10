@@ -22,6 +22,7 @@
 #include "Camera.h"
 #include "FPSCamera.h"
 #include "OrbitCamera.h"
+#include "OrthoCamera.h"
 #include "Lighting.h"
 #include "ShadowMap.h"
 
@@ -36,6 +37,9 @@ private:
 	int SHADOW_MAP_SIZE = 2048;
 
 	bool started = false;
+
+	TexturedTriangle* shadowMapImage = nullptr;
+	OrthoCamera* orthoCam = nullptr;
 
 public:
 

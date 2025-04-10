@@ -247,6 +247,26 @@ TexturedMesh MeshGenerator::getTexturedSphere(float radius, int latitudeBands, i
 	return result;
 }
 
+TexturedMesh MeshGenerator::getTexturedSquare()
+{
+	std::vector<Vertex> points;
+	
+	Vertex vertex1 = { DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f), DirectX::XMFLOAT2(0, 0), DirectX::XMFLOAT3(0, 0, 1) };
+	Vertex vertex2 = { DirectX::XMFLOAT4(-0.5f, -0.5f, 0.5f, 1.0f), DirectX::XMFLOAT2(1, 1), DirectX::XMFLOAT3(0, 0, 1) };
+	Vertex vertex3 = { DirectX::XMFLOAT4(0.5f, -0.5f, 0.5f, 1.0f), DirectX::XMFLOAT2(0, 1), DirectX::XMFLOAT3(0, 0, 1) };
+	Vertex vertex4 = { DirectX::XMFLOAT4(-0.5f, 0.5f, 0.5f, 1.0f), DirectX::XMFLOAT2(1, 0), DirectX::XMFLOAT3(0, 0, 1) };
+
+	points.push_back(vertex1);
+	points.push_back(vertex2);
+	points.push_back(vertex3);
+	points.push_back(vertex4);
+
+	std::vector<int> indeces = { 0,1,2, 1,0,3 };
+
+	TexturedMesh result = { points, indeces };
+	return result;
+}
+
 std::vector<TexturedMesh> MeshGenerator::getFromFile(const std::string& filepath)
 {
 	Assimp::Importer importer;

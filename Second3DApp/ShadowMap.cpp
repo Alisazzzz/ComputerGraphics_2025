@@ -33,7 +33,7 @@ void ShadowMapClass::Initialize(Microsoft::WRL::ComPtr<ID3D11Device> device, UIN
 	texDesc.Height = height;
 	texDesc.MipLevels = 1;
 	texDesc.ArraySize = 1;
-	texDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+	texDesc.Format = DXGI_FORMAT_R32_FLOAT;
 	texDesc.SampleDesc.Count = 1;
 	texDesc.SampleDesc.Quality = 0;
 	texDesc.Usage = D3D11_USAGE_DEFAULT;

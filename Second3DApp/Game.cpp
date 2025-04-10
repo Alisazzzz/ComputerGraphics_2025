@@ -89,6 +89,23 @@ void Game::Initialize(int screenWidthInput, int screenHeightInput)
 	linesTriangle2->transforms.rotate = Matrix::CreateRotationY(DirectX::XM_PIDIV2);
 	components.push_back(linesTriangle2);
 
+	Material* mat = new Material{
+	Vector4(1, 1, 1, 1),
+	Vector4(1, 1, 1, 1),
+	Vector4(0, 0, 0, 0)
+	};
+
+	float shiftX = static_cast<float>(screenWidth) / static_cast<float>(screenHeight);
+
+	shadowMapImage = new TexturedTriangle(getInstance());
+	TexturedMesh shadowImage = MeshGenerator::getInstance()->getTexturedSquare();
+	shadowMapImage->Initialize(L"./Shaders/MySecondShader_withoutLights.hlsl", shadowImage.points, shadowImage.indeces, true, L"./Textures/ShadowMapTexture.png", mat);
+	shadowMapImage->transforms.move = Matrix::CreateTranslation(Vector3(-shiftX + 0.5f, 0.5f, 0.0f));
+	orthoCam = new OrthoCamera(getInstance());
+	orthoCam->Initialize();
+	orthoCam->SetOrthoHeight(2.0f);
+	orthoCam->SetTarget(Vector3(0.0f, 0.0f, -1.0f));
+
 	//lights and shadows
 	pntLights = {};
 	dirLight = nullptr;
@@ -148,6 +165,9 @@ void Game::Draw()
 	for (GameComponent* component : components) {
 		component->Draw();
 	}
+
+	shadowMapImage->Draw();
+
 	context->OMSetRenderTargets(0, nullptr, nullptr);
 	swapChain->Present(1, /*DXGI_PRESENT_DO_NOT_WAIT*/ 0);
 }
@@ -167,6 +187,11 @@ void Game::Update()
 	for (GameComponent* component : components) {
 		component->Update();
 	}
+
+	Camera* oldCam = activeCamera;
+	activeCamera = orthoCam;
+	shadowMapImage->Update();
+	activeCamera = oldCam;
 }
 
 void Game::EndFrame()
@@ -209,10 +234,10 @@ int Game::Exit()
 void Game::UpdateLight()
 {
 	Vector3 sceneCenter(0.0f, 0.0f, 0.0f);
-	Vector3 lightCameraPos = sceneCenter - dirLight->direction * 50.0f;
+	Vector3 lightCameraPos = sceneCenter - dirLight->direction * 25.0f;
 
-	lightView = Matrix::CreateLookAt(lightCameraPos, sceneCenter, Vector3::Up);
-	lightProjection = Matrix::CreateOrthographic(128, 128, 0.1f, 100.0f);
+	lightView = Matrix::CreateLookAt(lightCameraPos, sceneCenter, Vector3::Down);
+	lightProjection = Matrix::CreateOrthographic(64, 64, 0.1f, 100.0f);
 }
 
 void Game::RenderShadowMap()
@@ -225,6 +250,8 @@ void Game::RenderShadowMap()
 		mesh->LightUpdate();
 		mesh->LightRender();
 	}
+
+	shadowMapImage->textureView = dirLightShadows->GetShadowMapDSV();
 }
 
 void Game::PrepareFrame() 
@@ -270,8 +297,11 @@ void Game::UpdateInterval()
 	if (isPlanetSystem) { PlanetSystem::getInstance()->UpdateInterval(deltaTime); }
 	if (isKatamari) { Katamari::getInstance()->UpdateInterval(deltaTime); }
 
+	//shadow pass
 	UpdateLight();
 	RenderShadowMap();
+
+	//render
 	PrepareFrame();
 	Update();
 	Draw();
@@ -293,8 +323,7 @@ void Game::MessageHandler()
 
 void Game::MouseInputHandler(Vector2 mouseInput)
 {
-	//if (started)
-		activeCamera->CameraRotate(mouseInput);
+	activeCamera->CameraRotate(mouseInput);
 }
 
 void Game::Run()
@@ -335,7 +364,7 @@ void Game::KatamariGame()
 	isKatamari = true;
 	Katamari* katamariGame = Katamari::getInstance();
 	CreateDepthBuffer();
-	//CreateShadowMapResources();
+
 	dirLightShadows = new ShadowMapClass();
 	dirLightShadows->Initialize(device, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
 	katamariGame->Initialize();
