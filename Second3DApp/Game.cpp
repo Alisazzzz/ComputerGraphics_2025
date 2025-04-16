@@ -95,7 +95,7 @@ void Game::Initialize(int screenWidthInput, int screenHeightInput)
 	Vector4(0, 0, 0, 0)
 	};
 
-	float shiftX = static_cast<float>(screenWidth) / static_cast<float>(screenHeight);
+	/*float shiftX = static_cast<float>(screenWidth) / static_cast<float>(screenHeight);
 
 	shadowMapImage = new TexturedTriangle(getInstance());
 	TexturedMesh shadowImage = MeshGenerator::getInstance()->getTexturedSquare();
@@ -104,7 +104,7 @@ void Game::Initialize(int screenWidthInput, int screenHeightInput)
 	orthoCam = new OrthoCamera(getInstance());
 	orthoCam->Initialize();
 	orthoCam->SetOrthoHeight(2.0f);
-	orthoCam->SetTarget(Vector3(0.0f, 0.0f, -1.0f));
+	orthoCam->SetTarget(Vector3(0.0f, 0.0f, -1.0f));*/
 
 	//lights and shadows
 	pntLights = {};
@@ -153,6 +153,29 @@ void Game::CreateDepthBuffer()
 	context->OMSetDepthStencilState(depthStencilState, 1);
 }
 
+void Game::RenderColor()
+{
+	float color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	context->ClearRenderTargetView(renderView, color);
+
+	context->OMSetRenderTargets(1, &renderView, depthStencilView);
+
+	for (TexturedTriangle* mesh : meshes) {
+		mesh->RenderWithoutLight();
+	}
+
+	context->OMSetRenderTargets(0, nullptr, nullptr);
+	swapChain->Present(1, /*DXGI_PRESENT_DO_NOT_WAIT*/ 0);
+}
+
+void Game::CreateShadowVolumes()
+{
+}
+
+void Game::RenderLightAndShadows()
+{
+}
+
 void Game::Draw()
 {
 	//float color[] = { 0.59f, 0.77f, 0.78f, 1.0f };
@@ -165,8 +188,7 @@ void Game::Draw()
 	for (GameComponent* component : components) {
 		component->Draw();
 	}
-
-	shadowMapImage->Draw();
+	//shadowMapImage->Draw();
 
 	context->OMSetRenderTargets(0, nullptr, nullptr);
 	swapChain->Present(1, /*DXGI_PRESENT_DO_NOT_WAIT*/ 0);
@@ -190,7 +212,7 @@ void Game::Update()
 
 	Camera* oldCam = activeCamera;
 	activeCamera = orthoCam;
-	shadowMapImage->Update();
+	//shadowMapImage->Update();
 	activeCamera = oldCam;
 }
 
@@ -251,7 +273,7 @@ void Game::RenderShadowMap()
 		mesh->LightRender();
 	}
 
-	shadowMapImage->textureView = dirLightShadows->GetShadowMapDSV();
+	//shadowMapImage->textureView = dirLightShadows->GetShadowMapDSV();
 }
 
 void Game::PrepareFrame() 
@@ -298,13 +320,19 @@ void Game::UpdateInterval()
 	if (isKatamari) { Katamari::getInstance()->UpdateInterval(deltaTime); }
 
 	//shadow pass
-	UpdateLight();
-	RenderShadowMap();
-
+	//UpdateLight();
+	//RenderShadowMap();
+	
 	//render
 	PrepareFrame();
 	Update();
-	Draw();
+
+	//stencil shadows
+	RenderColor();
+	CreateShadowVolumes();
+	RenderLightAndShadows();
+
+	//Draw();
 	EndFrame();
 }
 
@@ -369,6 +397,7 @@ void Game::KatamariGame()
 	dirLightShadows->Initialize(device, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
 	katamariGame->Initialize();
 	for (TexturedTriangle* mesh : meshes) {
-		mesh->CreateShadowShaders();
+		//mesh->CreateShadowShaders();
+		mesh->CreateShadowVolumesShaders();
 	}
 }

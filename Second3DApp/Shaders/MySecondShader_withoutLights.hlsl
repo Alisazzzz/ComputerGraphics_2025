@@ -175,7 +175,7 @@ PS_IN VSMain(VS_IN input)
 float4 PSMain(PS_IN input) : SV_Target
 {
     float3 texColor = diffuseMap.Sample(samp, input.tex);
-    texColor.rgb = texColor.rrr;
+    //texColor.rgb = texColor.rrr;
     float3 appliedLight = float3(0.0f, 0.0f, 0.0f);
     
     float3 vector2spectator = normalize(spectatorLocation.xyz - input.worldPosition);

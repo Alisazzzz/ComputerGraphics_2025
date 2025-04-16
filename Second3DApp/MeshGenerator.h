@@ -24,6 +24,11 @@ struct TexturedMesh {
 	std::wstring texturePath;
 };
 
+struct EdgeAdjastency {
+	UINT indexStart, indexEnd;
+	UINT oppositeVertexIndex;
+};
+
 class MeshGenerator
 {
 private:
@@ -55,5 +60,7 @@ public:
 	TexturedMesh getTexturedSquare();
 
 	std::vector<TexturedMesh> getFromFile(const std::string& filepath);
+
+	std::vector<UINT> GenerateAdjastencyIndices(const std::vector<Vertex>& vertices,const std::vector<int>& indices);
 };
 

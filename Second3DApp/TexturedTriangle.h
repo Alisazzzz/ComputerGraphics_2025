@@ -62,6 +62,21 @@ private:
 	ID3D11PixelShader* pixelShader_shadows;
 	ID3DBlob* pixelByteCode_shadows;
 
+	//FOR SHADOW VOLUMES
+	ID3D11PixelShader* pixelShader_withoutLights; 
+	ID3DBlob* pixelByteCode_withoutLights;
+
+	std::vector<UINT> indeces_with_adjastency;
+
+	ID3D11VertexShader* vertexShader_shadowVolumes;
+	ID3DBlob* vertexByteCode_shadowVolumes;
+
+	ID3D11GeometryShader* geometryShader_shadowVolumes;
+	ID3DBlob* geometryByteCode_shadowVolumes;
+
+	ID3D11PixelShader* pixelShader_shadowVolumes;
+	ID3DBlob* pixelByteCode_shadowVolumes;
+
 public:
 	ID3D11ShaderResourceView* textureView;
 
@@ -97,15 +112,26 @@ public:
 
 		shadowsResource = nullptr;
 		shadowSampler = nullptr;
+
+		//FOR SHADOW VOLUMES
+		vertexShader_shadowVolumes = nullptr;
+		vertexByteCode_shadowVolumes = nullptr;
+		geometryShader_shadowVolumes = nullptr;
+		geometryByteCode_shadowVolumes = nullptr;
 	};
 
 	void Initialize(LPCWSTR shaderSource,
 		std::vector<Vertex> pointsInput, std::vector<int> indecesInput,
 		bool is2DInput, std::wstring texturePath, Material* materialInput);
 	void CreateShadowShaders();
+	void CreateShadowVolumesShaders();
 
 	void Draw();
 	void LightRender();
+
+	void RenderWithoutLight(); //for shadow volumes
+
+	void CreateShadowVolumes();
 
 	void Update();
 	void LightUpdate();

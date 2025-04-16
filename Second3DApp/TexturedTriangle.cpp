@@ -1,5 +1,6 @@
- #include "TexturedTriangle.h"
+#include "TexturedTriangle.h"
 #include "Game.h"
+#include "MeshGenerator.h"
 
 void TexturedTriangle::CreateShadowShaders()
 {
@@ -61,6 +62,40 @@ void TexturedTriangle::CreateShadowShaders()
 	rastDesc.DepthBiasClamp = 0.0f;
 
 	res = game->device->CreateRasterizerState(&rastDesc, &rastState_shadows);
+}
+
+void TexturedTriangle::CreateShadowVolumesShaders()
+{
+	ID3DBlob* errorVertexCode = nullptr;
+	HRESULT res = D3DCompileFromFile(L"./Shaders/ShadowMapShader.hlsl",
+		nullptr /*macros*/,
+		nullptr /*include*/,
+		"VSMain",
+		"vs_5_0",
+		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+		0,
+		&vertexByteCode_shadows,
+		&errorVertexCode);
+	game->device->CreateVertexShader(
+		vertexByteCode_shadows->GetBufferPointer(),
+		vertexByteCode_shadows->GetBufferSize(),
+		nullptr, &vertexShader_shadows);
+
+
+	ID3DBlob* errorGeometryCode = nullptr;
+	res = D3DCompileFromFile(L"./Shaders/MyFirstGeometryShader.hlsl",
+		nullptr /*macros*/,
+		nullptr /*include*/,
+		"main",
+		"gs_5_0",
+		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+		0,
+		&geometryByteCode_shadowVolumes,
+		&errorGeometryCode);
+	game->device->CreateGeometryShader(
+		geometryByteCode_shadowVolumes->GetBufferPointer(),
+		geometryByteCode_shadowVolumes->GetBufferSize(),
+		nullptr, &geometryShader_shadowVolumes);
 }
 
 void TexturedTriangle::Initialize(LPCWSTR shaderSource,
@@ -237,6 +272,23 @@ void TexturedTriangle::Initialize(LPCWSTR shaderSource,
 
 	res = game->device->CreateShaderResourceView(texture2D, &srvDesc, &textureView);
 	texture2D->Release();	
+
+	//FOR SHADOW VOLUMES
+	indeces_with_adjastency = MeshGenerator::getInstance()->GenerateAdjastencyIndices(points, indeces);
+	res = D3DCompileFromFile(L"./Shaders/MySecondShader_withoutLights.hlsl",
+		nullptr,
+		nullptr,
+		"PSMain",
+		"ps_5_0",
+		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+		0,
+		&pixelByteCode_withoutLights,
+		&errorPixelCode);
+
+	game->device->CreatePixelShader(
+		pixelByteCode_withoutLights->GetBufferPointer(),
+		pixelByteCode_withoutLights->GetBufferSize(),
+		nullptr, &pixelShader_withoutLights);
 }
 
 void TexturedTriangle::Draw()
@@ -279,6 +331,36 @@ void TexturedTriangle::LightRender()
 	game->context->PSSetShader(pixelShader_shadows, nullptr, 0);
 
 	game->context->DrawIndexed(indeces.size(), 0, 0);
+}
+
+//FOR SHADOW VOLUMES
+void TexturedTriangle::RenderWithoutLight()
+{
+	game->context->RSSetState(rastState);
+
+	game->context->IASetInputLayout(layout);
+	game->context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	game->context->IASetIndexBuffer(ib, DXGI_FORMAT_R32_UINT, 0);
+
+	game->context->VSSetConstantBuffers(0, 1, &constBuffer);
+	game->context->PSSetConstantBuffers(1, 1, &lightBuffer);
+
+	game->context->PSSetShaderResources(0, 1, &textureView);
+	game->context->PSSetSamplers(0, 1, &samplerState);
+
+	game->context->PSSetShaderResources(1, 1, &shadowsResource);
+	game->context->PSSetSamplers(1, 1, &shadowSampler);
+
+	game->context->IASetVertexBuffers(0, 1, &vb, strides.data(), offsets.data());
+	game->context->VSSetShader(vertexShader, nullptr, 0);
+	game->context->PSSetShader(pixelShader_withoutLights, nullptr, 0);
+
+	game->context->DrawIndexed(indeces.size(), 0, 0);
+}
+
+void TexturedTriangle::CreateShadowVolumes()
+{
+	MeshGenerator::getInstance()->GenerateAdjastencyIndices(points, indeces);
 }
 
 void TexturedTriangle::Update()

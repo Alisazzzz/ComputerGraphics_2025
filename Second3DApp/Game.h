@@ -98,6 +98,11 @@ public:
 	void CreateBackBuffer();
 	void CreateDepthBuffer();
 
+	//stencil shadows
+	void RenderColor();
+	void CreateShadowVolumes();
+	void RenderLightAndShadows();
+
 	void Draw();
 	void Update();
 	void EndFrame();
