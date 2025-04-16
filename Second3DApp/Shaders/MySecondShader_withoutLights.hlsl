@@ -185,16 +185,16 @@ float4 PSMain(PS_IN input) : SV_Target
     float shadowFactor = CalculateShadow(lightSpacePos);
     
     DirectionalLightComputing(material, dirLight, input.normal, vector2spectator, ambient, diffuse, specular);
-    appliedLight = appliedLight + ambient.xyz + diffuse.xyz + specular.xyz;
-    appliedLight *= shadowFactor;
+    appliedLight = appliedLight + ambient.xyz;
+    //appliedLight *= shadowFactor;
     
     for (int i = 0; i < 8; i++)
     {
         PointLightComputing(material, pntLights[i], input.worldPosition, input.normal, vector2spectator, ambient, diffuse, specular);
-        appliedLight = appliedLight + ambient.xyz + diffuse.xyz + specular.xyz;
+        appliedLight = appliedLight + ambient.xyz;
     }
     
-    float3 finalColor = texColor;
+    float3 finalColor = texColor  * appliedLight;
     
     return float4(finalColor, 1.0f);
 };

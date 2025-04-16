@@ -97,11 +97,14 @@ public:
 	void Initialize(int screenWidthInput, int screenHeightInput);
 	void CreateBackBuffer();
 	void CreateDepthBuffer();
+	void CreateShadowVolumeDepth();
 
 	//stencil shadows
+	ID3D11DepthStencilState* ShadowVolumeDSState;
 	void RenderColor();
 	void CreateShadowVolumes();
 	void RenderLightAndShadows();
+	//end of stencil shadows
 
 	void Draw();
 	void Update();

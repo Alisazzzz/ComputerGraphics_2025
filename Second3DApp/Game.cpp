@@ -68,44 +68,6 @@ void Game::Initialize(int screenWidthInput, int screenHeightInput)
 
 	CreateDepthBuffer();
 
-	std::vector<UINT> strides = { 32 };
-	std::vector<UINT> offsets = { 0 };
-
-	std::vector<DirectX::XMFLOAT4> lines;
-
-	for (int i = 0; i <= 400; i++) {
-		lines.push_back(Vector4(-100.0f, 1.0f, -100.0f + i, 1.0f));
-		lines.push_back(Vector4(0.1f, 0.1f, 0.1f, 1.0f));
-		lines.push_back(Vector4(100.0f, 1.0f, -100.0f + i, 1.0f));
-		lines.push_back(Vector4(0.1f, 0.1f, 0.1f, 1.0f));
-	}
-
-	LinelistComponent* linesTriangle1 = new LinelistComponent(getInstance());
-	linesTriangle1->Initialize(L"./Shaders/MyVeryFirstShader.hlsl", lines, strides, offsets, true);
-	components.push_back(linesTriangle1);
-
-	LinelistComponent* linesTriangle2 = new LinelistComponent(getInstance());
-	linesTriangle2->Initialize(L"./Shaders/MyVeryFirstShader.hlsl", lines, strides, offsets, true);
-	linesTriangle2->transforms.rotate = Matrix::CreateRotationY(DirectX::XM_PIDIV2);
-	components.push_back(linesTriangle2);
-
-	Material* mat = new Material{
-	Vector4(1, 1, 1, 1),
-	Vector4(1, 1, 1, 1),
-	Vector4(0, 0, 0, 0)
-	};
-
-	/*float shiftX = static_cast<float>(screenWidth) / static_cast<float>(screenHeight);
-
-	shadowMapImage = new TexturedTriangle(getInstance());
-	TexturedMesh shadowImage = MeshGenerator::getInstance()->getTexturedSquare();
-	shadowMapImage->Initialize(L"./Shaders/MySecondShader_withoutLights.hlsl", shadowImage.points, shadowImage.indeces, true, L"./Textures/ShadowMapTexture.png", mat);
-	shadowMapImage->transforms.move = Matrix::CreateTranslation(Vector3(-shiftX + 0.5f, 0.5f, 0.0f));
-	orthoCam = new OrthoCamera(getInstance());
-	orthoCam->Initialize();
-	orthoCam->SetOrthoHeight(2.0f);
-	orthoCam->SetTarget(Vector3(0.0f, 0.0f, -1.0f));*/
-
 	//lights and shadows
 	pntLights = {};
 	dirLight = nullptr;
@@ -118,6 +80,7 @@ void Game::CreateBackBuffer()
 
 void Game::CreateDepthBuffer()
 {
+
 	D3D11_TEXTURE2D_DESC depthBufferDesc = {};
 	depthBufferDesc.Width = screenWidth;
 	depthBufferDesc.Height = screenHeight;
@@ -141,49 +104,63 @@ void Game::CreateDepthBuffer()
 	ID3D11DepthStencilState* depthStencilState;
 
 	D3D11_DEPTH_STENCIL_DESC depthStencilDesc = {};
-
 	depthStencilDesc.DepthEnable = TRUE;
 	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
 
 	depthStencilDesc.StencilEnable = FALSE;
 
-	device->CreateDepthStencilState(&depthStencilDesc, &depthStencilState);
-	
+	device->CreateDepthStencilState(&depthStencilDesc, &depthStencilState);	
 	context->OMSetDepthStencilState(depthStencilState, 1);
+}
+
+void Game::CreateShadowVolumeDepth()
+{
+	D3D11_DEPTH_STENCIL_DESC dsDesc = {};
+
+	dsDesc.DepthEnable = TRUE;
+	dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	dsDesc.DepthFunc = D3D11_COMPARISON_LESS;
+
+	dsDesc.StencilEnable = TRUE;
+
+	dsDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	dsDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+	dsDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	dsDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	dsDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	dsDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+	dsDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	dsDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	//HRESULT hr = device->CreateDepthStencilState(&dsDesc, &ShadowVolumeDSState);
+	//context->OMSetDepthStencilState(ShadowVolumeDSState, 1);
 }
 
 void Game::RenderColor()
 {
 	float color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	context->ClearRenderTargetView(renderView, color);
-
 	context->OMSetRenderTargets(1, &renderView, depthStencilView);
 
 	for (TexturedTriangle* mesh : meshes) {
 		mesh->RenderWithoutLight();
 	}
-
-	context->OMSetRenderTargets(0, nullptr, nullptr);
-	swapChain->Present(1, /*DXGI_PRESENT_DO_NOT_WAIT*/ 0);
 }
 
 void Game::CreateShadowVolumes()
 {
-}
+	context->OMSetDepthStencilState(ShadowVolumeDSState, 0);
 
-void Game::RenderLightAndShadows()
-{
+	for (TexturedTriangle* mesh : meshes) {
+		mesh->CreateShadowVolumes();
+	}
 }
 
 void Game::Draw()
 {
-	//float color[] = { 0.59f, 0.77f, 0.78f, 1.0f };
-	//float color[] = { 0.84f, 0.47f, 0.65f, 1.0f };
-	float color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-	context->ClearRenderTargetView(renderView, color);
-
-	context->OMSetRenderTargets(1, &renderView, depthStencilView);
+	context->OMSetDepthStencilState(ShadowVolumeDSState, 0);
 
 	for (GameComponent* component : components) {
 		component->Draw();
@@ -330,9 +307,8 @@ void Game::UpdateInterval()
 	//stencil shadows
 	RenderColor();
 	CreateShadowVolumes();
-	RenderLightAndShadows();
 
-	//Draw();
+	Draw();
 	EndFrame();
 }
 
@@ -392,9 +368,9 @@ void Game::KatamariGame()
 	isKatamari = true;
 	Katamari* katamariGame = Katamari::getInstance();
 	CreateDepthBuffer();
-
+	CreateShadowVolumeDepth();
 	dirLightShadows = new ShadowMapClass();
-	dirLightShadows->Initialize(device, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
+	//dirLightShadows->Initialize(device, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
 	katamariGame->Initialize();
 	for (TexturedTriangle* mesh : meshes) {
 		//mesh->CreateShadowShaders();

@@ -67,6 +67,7 @@ private:
 	ID3DBlob* pixelByteCode_withoutLights;
 
 	std::vector<UINT> indeces_with_adjastency;
+	ID3D11Buffer* pAdjacencyIB;
 
 	ID3D11VertexShader* vertexShader_shadowVolumes;
 	ID3DBlob* vertexByteCode_shadowVolumes;
