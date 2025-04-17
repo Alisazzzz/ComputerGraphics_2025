@@ -308,7 +308,6 @@ void TexturedTriangle::Draw()
 	game->context->IASetInputLayout(layout);
 	game->context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	game->context->IASetIndexBuffer(ib, DXGI_FORMAT_R32_UINT, 0);
-
 	game->context->VSSetConstantBuffers(0, 1, &constBuffer);
 	game->context->PSSetConstantBuffers(1, 1, &lightBuffer);
 
@@ -374,7 +373,7 @@ void TexturedTriangle::RenderWithoutLight()
 
 void TexturedTriangle::CreateShadowVolumes()
 {
-	game->context->RSSetState(rastState);
+	//game->context->RSSetState(rastState);
 
 	game->context->IASetInputLayout(layout);
 	game->context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST_ADJ);

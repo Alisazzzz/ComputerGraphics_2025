@@ -41,6 +41,8 @@ private:
 	TexturedTriangle* shadowMapImage = nullptr;
 	OrthoCamera* orthoCam = nullptr;
 
+	ID3D11DepthStencilState* depthStencilState;
+
 public:
 
 	bool isPong = false;
@@ -101,6 +103,10 @@ public:
 
 	//stencil shadows
 	ID3D11DepthStencilState* ShadowVolumeDSState;
+	ID3D11DepthStencilState* LightDrawDSState;
+	ID3D11BlendState* additiveBlendState;
+	ID3D11Texture2D* stencilBuffer;
+	ID3D11DepthStencilView* depthStencilView_shadowVolumes;
 	void RenderColor();
 	void CreateShadowVolumes();
 	void RenderLightAndShadows();

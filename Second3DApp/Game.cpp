@@ -80,7 +80,6 @@ void Game::CreateBackBuffer()
 
 void Game::CreateDepthBuffer()
 {
-
 	D3D11_TEXTURE2D_DESC depthBufferDesc = {};
 	depthBufferDesc.Width = screenWidth;
 	depthBufferDesc.Height = screenHeight;
@@ -93,6 +92,7 @@ void Game::CreateDepthBuffer()
 
 	device->CreateTexture2D(&depthBufferDesc, nullptr, &depthStencilBuffer);
 
+	//
 	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc = {};
 	depthStencilViewDesc.Format = depthBufferDesc.Format;
 	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
@@ -101,17 +101,14 @@ void Game::CreateDepthBuffer()
 	device->CreateDepthStencilView(depthStencilBuffer, &depthStencilViewDesc, &depthStencilView);
 	context->OMSetRenderTargets(1, &renderView, depthStencilView);
 
-	ID3D11DepthStencilState* depthStencilState;
-
+	//
 	D3D11_DEPTH_STENCIL_DESC depthStencilDesc = {};
 	depthStencilDesc.DepthEnable = TRUE;
 	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
-
 	depthStencilDesc.StencilEnable = FALSE;
 
 	device->CreateDepthStencilState(&depthStencilDesc, &depthStencilState);	
-	context->OMSetDepthStencilState(depthStencilState, 1);
 }
 
 void Game::CreateShadowVolumeDepth()
@@ -123,7 +120,8 @@ void Game::CreateShadowVolumeDepth()
 	dsDesc.DepthFunc = D3D11_COMPARISON_LESS;
 
 	dsDesc.StencilEnable = TRUE;
-
+	dsDesc.StencilReadMask = 0xFF;
+	dsDesc.StencilWriteMask = 0xFF;
 	dsDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
 	dsDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
 	dsDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
@@ -133,9 +131,37 @@ void Game::CreateShadowVolumeDepth()
 	dsDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
 	dsDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
 	dsDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+	device->CreateDepthStencilState(&dsDesc, &ShadowVolumeDSState);
 
-	//HRESULT hr = device->CreateDepthStencilState(&dsDesc, &ShadowVolumeDSState);
-	//context->OMSetDepthStencilState(ShadowVolumeDSState, 1);
+	//
+	D3D11_DEPTH_STENCIL_DESC litOnlyDesc = {};
+	litOnlyDesc.DepthEnable = TRUE;
+	litOnlyDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+	litOnlyDesc.DepthFunc = D3D11_COMPARISON_LESS;
+
+	litOnlyDesc.StencilEnable = TRUE;
+	litOnlyDesc.StencilReadMask = 0xFF;
+	litOnlyDesc.StencilWriteMask = 0x00;
+
+	litOnlyDesc.FrontFace.StencilFunc = D3D11_COMPARISON_NOT_EQUAL;
+	litOnlyDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	litOnlyDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	litOnlyDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+	litOnlyDesc.BackFace = litOnlyDesc.FrontFace;
+
+	HRESULT hr = device->CreateDepthStencilState(&litOnlyDesc, &LightDrawDSState);
+	if (FAILED(hr)) std::cout << "oups" << std::endl;
+
+	/*D3D11_BLEND_DESC blendDesc = {};
+	blendDesc.RenderTarget[0].BlendEnable = TRUE;
+	blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+	blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
+	blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	device->CreateBlendState(&blendDesc, &additiveBlendState);*/
 }
 
 void Game::RenderColor()
@@ -143,6 +169,8 @@ void Game::RenderColor()
 	float color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	context->ClearRenderTargetView(renderView, color);
 	context->OMSetRenderTargets(1, &renderView, depthStencilView);
+
+	context->OMSetDepthStencilState(depthStencilState, 0);
 
 	for (TexturedTriangle* mesh : meshes) {
 		mesh->RenderWithoutLight();
@@ -160,7 +188,12 @@ void Game::CreateShadowVolumes()
 
 void Game::Draw()
 {
-	context->OMSetDepthStencilState(ShadowVolumeDSState, 0);
+	context->OMSetDepthStencilState(LightDrawDSState, 0);
+	//context->OMSetBlendState(additiveBlendState, nullptr, 0xffffffff);
+	//context->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+	/*float color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	context->ClearRenderTargetView(renderView, color);
+	context->OMSetRenderTargets(1, &renderView, depthStencilView);*/
 
 	for (GameComponent* component : components) {
 		component->Draw();
@@ -257,7 +290,7 @@ void Game::PrepareFrame()
 {
 	context->ClearState();
 	if(depthStencilView != nullptr)
-		context->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+		context->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	D3D11_VIEWPORT viewport = {};
 	viewport.Width = static_cast<float>(screenWidth);
